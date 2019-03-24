@@ -6,7 +6,12 @@
 PartyLoud is a bash script to create fake internet traffic
 to mitigate tracking from hacker on local network or IPS
 
-## Installation
+## Table of contents
+* [General info](#general-info)
+* [Setup](#setup)
+* [Usage](#usage)
+
+## Setup
 
 OS X & Linux:
 
@@ -17,7 +22,7 @@ chmod +x partyloud.sh
 ./partyloud.sh
 ```
 
-## Usage example
+## Usage
 
 To use this script just run it without any argument, in future
 I'll add an option to set the number of parallel at start
