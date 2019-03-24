@@ -3,6 +3,8 @@
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 
+![ScreenShoot](https://imgur.com/cn1eEFs)
+
 PartyLoud is a bash script to create fake internet traffic
 to mitigate tracking from hacker on local network or IPS
 
