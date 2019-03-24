@@ -50,7 +50,7 @@ function Engine() {
         RES="$(curl -L -A "$USERAGENT" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
         if [ $? -eq 0  ] && [ "$(echo "$RES" | wc -l)" > 1 ]
         then
-            NUM="$(( $RANDOM % "$(( $(echo "$RES" | wc -l) - 1 ))" + 1 ))"
+            NUM="$(( $RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))"
             ALT="$URL"
             URL="$(echo "$RES" | sed "${NUM}q;d")" # Random Link
         else
