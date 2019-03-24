@@ -14,7 +14,6 @@ to mitigate tracking from hacker on local network or IPS
 ## Setup
 
 In order to run the sript you need bash.
-
 Currently PartyLoud has been only ftested on Debian 9 and Mac OSX 10.14.
 
 
@@ -30,9 +29,7 @@ chmod +x partyloud.sh
 ## Usage
 
 To use this script just run it without any argument, in future
-
 I'll add an option to set the number of parallel at start
-
 (currently it is fixed to 7)
 
 To stop the script just press any key
