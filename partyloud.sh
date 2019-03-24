@@ -1,27 +1,47 @@
 #!/bin/bash
 
 function logo() {
-    cat << "EOF"
+cat << 'EOF'
+
   ___          _        _                _
  | _ \__ _ _ _| |_ _  _| |   ___ _  _ __| |
  |  _/ _` | '_|  _| || | |__/ _ \ || / _` |
  |_| \__,_|_|  \__|\_, |____\___/\_,_\__,_|
                    |__/        Coded by THO
 
-A simple tool to do several
-http request and simulate navigation
+
+A simple tool to do several http request and
+simulate navigation
+
 17/03/2019
 
 EOF
 }
 
+function center() {
+    columns="$(tput cols)"
+    printf "%*s" $(( (${#1} - columns) / 2))
+    echo -ne "$1"
+}
+
+function clearLines() {
+    for ((x=1; x<="$1"; x++)); do
+        if [ $x != $1 ]
+        then
+            echo -ne "\e[1A"
+        fi
+        echo -ne "\033[2K\r"
+    done
+}
+
 function progress() {
-    echo -ne "\r$3 [$1/$2]"
+    clearLines 1
+    echo -ne "$1 [$2]"
 }
 
 function Engine() {
     local URL="$1"
-    local ALT="$1"
+    local ALT="$2"
     local RES=""
     local NUM=0
     local WORDS=0;
@@ -77,31 +97,32 @@ function main() {
                          "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
                        )
     for ((i=1; i<=7; i++)); do
-        progress $i 7 "+ Starting #$1 instances of noisy.py "
+        progress "[+] Starting HTTP Engines ... " "$i/7"
         Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "${USERAGENT[$(( $RANDOM % ${#USERAGENT[@]} ))]}" &
         PIDS+=($!)
         sleep 0.2
     done
     cd ..
 
-    echo
-    echo "+ The party has Started!"
+    clearLines 1
+    echo -ne "[+] HTTP Engines Started!\n"
 
     local RESPONSE=""
     echo -ne "\n\n"
-    echo "[ PRESS ANY KEY TO STOP ]"
-    read RESPONSE
 
-    echo -ne "\n"
-    echo "+ Police breaking in ..."
+    center "[ PRESS ANY KEY TO STOP ]"
+    read RESPONSE
+    clearLines 4
 
     for PID in "${PIDS[@]}"; do
-        echo -ne "\t* Terminating $PID ...\n"
+        progress "[+] Terminating HTTP Engines ..." "pid: $PID"
         kill -9 "$PID"
         wait "$PID" 2>/dev/null
+        sleep 0.2
     done
 
-    echo "+ Party Stopped!"
+    clearLines 1
+    echo -ne "[+] HTTP Engines Stopped!\n\n"
     #killall python
 }
 
