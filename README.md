@@ -24,7 +24,6 @@ I'll add an option to set the number of parallel at start
 (currently it is fixed to 7)
 
 To stop the script just press any key
-
-### DO NOT STOP SCRIPT VIA CTRL-C
+#### DO NOT STOP SCRIPT VIA CTRL-C
 if you do so you will kill main process but sub shells will stay alive
 and keep sending requests
