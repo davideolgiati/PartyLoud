@@ -18,6 +18,17 @@ simulate navigation
 EOF
 }
 
+function DisplayHelp() {
+    cat << 'EOF'
+ =================[ USAGE ]=================
+
+do not overthink, just run it this way:
+./partyloud.sh [# of threads]
+
+# of threads must be 0 < x < 25
+EOF
+}
+
 function center() {
     columns="$(tput cols)"
     printf "%*s" $(( (${#1} - columns) / 2))
@@ -96,7 +107,7 @@ function main() {
                          "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
                          "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
                        )
-    for ((i=1; i<=7; i++)); do
+    for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/7"
         Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "${USERAGENT[$(( $RANDOM % ${#USERAGENT[@]} ))]}" &
         PIDS+=($!)
@@ -129,4 +140,17 @@ function main() {
 clear
 logo
 
-main
+if [ $# == 1 ]
+then
+    if [[ $1 =~ '^[0-9]+$' ]] && [ $1 > 0 ] && [ $1 < 25 ]
+    then
+        main $1
+    else
+        DisplayHelp
+    fi
+elif [ $# == 0 ]
+then
+    main 7
+else
+    DisplayHelp
+fi
