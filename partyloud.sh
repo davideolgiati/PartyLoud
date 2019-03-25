@@ -51,12 +51,40 @@ function progress() {
 }
 
 function generateUserAgent() {
-    readonly WINVER=( "10.0" "6.3" "6.2" "6.1" "6.0" "5.2" "5.1")
+    readonly WIN=( "10.0" "6.3" "6.2" "6.1" "6.0" "5.2" "5.1" )
+    readonly MAC=( "10.14" "10.13" "10.12" "10.11" "10.10" "10.9")
     local UserAgent="Mozilla/5.0 "
+
+    readonly OS=$(( $RANDOM % 3 + 1))
+    readonly bit=$(( $RANDOM % 2))
 
     if [ $OS == 1 ]
     then
-        UserAgent+="(Windows NT ${WINVER[$(( $RANDOM % ${#WINVER[@]} ))]}; rv:10.0)"
+        # Windows
+        OS="${WIN[$(( $RANDOM % ${#WIN[@]} ))]}"
+        if [ bit == 0 ]
+        then
+            # 32bit
+            UserAgent+="(Windows NT $OS; rv:10.0)"
+        else
+            # 64bit
+            UserAgent+="(Windows NT $OS; Win64; x64; rv:10.0)"
+        fi
+    elif [ $OS == 2 ]
+    then
+        # MacOS
+        OS="${MAC[$(( $RANDOM % ${#MAC[@]} ))]}"
+        UserAgent+="(Macintosh; Intel Mac OS X $OS; rv:10.0)"
+    else
+        # Linux
+        if [ bit == 0 ]
+        then
+            # 32bit
+            UserAgent+="(X11; Linux i686; rv:10.0)"
+        else
+            # 64bit
+            UserAgent+="(X11; Linux x86_64; rv:10.0)"
+        fi
     fi
 }
 
