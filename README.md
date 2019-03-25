@@ -22,14 +22,14 @@ This script was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py"
 ## Changelog
 
 ## [0.0.5] - 2019-03-21
-### Added
+### Added :new:
 - Now each partyloud engine wait a pseudo-randomic amount of time before
 making a new request to prevent anti-DDoS mechanism triggering (Thx to
 [Ale Sala](https://www.instagram.com/ale.sala.97/ "Ale Sala"))
 - The wait time is calculted using this formula **Wait time** =
 (**Guessed #Word** * **Reading Speed [second/word]**)
 
-### Changed
+### Changed :white_check_mark:
 - Added User Agents to cURL requests in order to improve traffic
 randomness
 - Changed error recovery mechanism (now if an HTTP request fail a
@@ -39,27 +39,27 @@ backup url is used)
 - Minor changes in UI
 
 ## [0.0.3] - 2019-03-20
-### Added
+### Added :new:
 - Internal Engine is now complete and operative
 - cURL is now used to generate pseudo-randomic requests
 - HTML response is now parsed using grep
 - Bad URLs are now filtered using a wordlist mechanism
 (wordlist is located in a file named badwords)
 
-### Changed
+### Changed :white_check_mark:
 - Fixed number of sub-processes to 7
 
-### Removed
+### Removed :no_entry:
 - noisy.py and python are now no more required to run the script
 - disabled user-defined number of processes
 
 ## [0.0.2] - 2019-03-18
-### Changed
+### Changed :white_check_mark:
 - Started migration from noisy.py to internel Egnine
 - Major UI Improvemnts
 
 ## [0.0.1] - 2019-03-17
-### Added
+### Added :new:
 - Initilal Alpha
 - Added a while loop to start a used defined number of noisy.py process
 - Added a minimal UI
