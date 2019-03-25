@@ -50,6 +50,16 @@ function progress() {
     echo -ne "$1 [$2]"
 }
 
+function generateUserAgent() {
+    readonly WINVER=( "10.0" "6.3" "6.2" "6.1" "6.0" "5.2" "5.1")
+    local UserAgent="Mozilla/5.0 "
+
+    if [ $OS == 1 ]
+    then
+        UserAgent+="(Windows NT ${WINVER[$(( $RANDOM % ${#WINVER[@]} ))]}; rv:10.0)"
+    fi
+}
+
 function Engine() {
     local URL="$1"
     local ALT="$2"
