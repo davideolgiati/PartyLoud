@@ -1,5 +1,5 @@
 # PartyLoud :sound:
-> A simple tool to do several http / https requests and simulate navigation
+> A simple tool to do several HTTP / HTTPS requests and simulate navigation
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
@@ -33,15 +33,15 @@ making a new request to prevent anti-DDoS mechanism triggering (Thx to
 - Added User Agents to cURL requests in order to improve traffic
 randomness
 - Changed error recovery mechanism (now if an HTTP request fail a
-backup url is used)
-- Fixed bash 3.2 bug in URL selection mechanism
+backup URL is used)
+- Fixed bash 3.2 bug in the URL selection mechanism
 - Fixed wc -l related bug
 - Minor changes in UI
 
 ## [0.0.3] - 2019-03-20
 ### :new: Added
 - Internal Engine is now complete and operative
-- cURL is now used to generate pseudo-randomic requests
+- cURL is now used to generate pseudo-random requests
 - HTML response is now parsed using grep
 - Bad URLs are now filtered using a wordlist mechanism
 (wordlist is located in a file named badwords)
@@ -70,7 +70,7 @@ Clone the repository:
 ```sh
 git clone https://github.com/realtho/PartyLoud.git
 ```
-Navigate to th directory and make stript executable:
+Navigate to the directory and make the script executable:
 ```sh
 cd PartyLoud
 chmod +x partyloud.sh
@@ -88,8 +88,9 @@ Run 'partyloud':
 ./partyloud.sh
 ```
 
-In future I'll add an option to set the number of parallel at start
-(currently it is fixed to 7)
+In the future, I'll add an option to set the number of parallel at start
+(currently, it is fixed to 7)
 
 ##### To stop the script just press any key
 :warning: Do not stop this script using CTRL-C
+
