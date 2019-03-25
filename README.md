@@ -22,7 +22,7 @@ This script was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py"
 
 ## Setup
 
-##### Currently PartyLoud has been only tested on Debian 9 and Mac OSX 10.14.
+##### :warning: Currently PartyLoud has been only tested on Debian 9 and Mac OSX 10.14. :warning:
 
 Clone the repository:
 ```sh
@@ -40,11 +40,14 @@ Run 'partyloud':
 
 ## Usage
 
-To use this script just run it without any argument, in future
-I'll add an option to set the number of parallel at start
+### Just run it without any argument
+
+```sh
+./partyloud.sh
+```
+
+In future I'll add an option to set the number of parallel at start
 (currently it is fixed to 7)
 
-To stop the script just press any key
-#### DO NOT STOP SCRIPT VIA CTRL-C
-if you do so you will kill main process but sub shells will stay alive
-and keep sending requests
+### To stop the script just press any key
+#### DO NOT STOP THE SCRIPT USING CTRL-C
