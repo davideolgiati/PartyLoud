@@ -2,6 +2,7 @@
 > A simple tool to do several http/https requests and simulate navigation.
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ![ScreenShoot](https://i.imgur.com/cn1eEFs.png
 )
@@ -50,4 +51,4 @@ In future I'll add an option to set the number of parallel at start
 (currently it is fixed to 7)
 
 ##### To stop the script just press any key
-:exclamation: :exclamation: Do not stop this script using CTRL-C
+:warning: Do not stop this script using CTRL-C
