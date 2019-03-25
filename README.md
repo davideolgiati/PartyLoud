@@ -26,18 +26,9 @@ This script was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py"
 - now each partyloud engine wait a pseudo-randomic amount of time before
 making a new request to prevent anti-DDoS mechanism triggering (Thx to
 [Ale Sala](https://www.instagram.com/ale.sala.97/ "Ale Sala"))
-- Added random User Agents to cURL requests
 
 ### Changed
-- Refer to a "change log" instead of a "CHANGELOG" throughout the site
-to differentiate between the file and the purpose of the file — the
-logging of changes.
-
-### Removed
-- Remove empty sections from CHANGELOG, they occupy too much space and
-create too much noise in the file. People will have to assume that the
-missing sections were intentionally left out because they contained no
-notable changes.
+- Added random User Agents to cURL requests
 
 ## [0.0.3] - 2019-03-20
 ### Added
