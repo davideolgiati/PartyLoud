@@ -51,11 +51,19 @@ function progress() {
 }
 
 function generateUserAgent() {
-    readonly WIN=( "10.0" "6.3" "6.2" "6.1" "6.0" "5.2" "5.1" )
-    readonly MAC=( "10.14" "10.13" "10.12" "10.11" "10.10" "10.9")
+    readonly WIN=( "10.0"  # Win10
+                   "6.3"   # Win 8.1
+                   "6.2"   # Win 8
+                   "6.1" ) # Win 7
+
+    readonly MAC=( "10_14" "10_14_1" "10_14_2" "10_14_3" "10_14_4" "10_14_5" "10_14_6"  # Mojave
+                   "10_13" "10_13_1" "10_13_2" "10_13_3" "10_13_4" "10_13_5" "10_13_6"  # High Sierra
+                   "10_12" "10_12_1" "10_12_2" "10_12_3" "10_12_4" "10_12_5" "10_12_6"  # Sierra
+                   "10_11" "10_11_1" "10_11_2" "10_11_3" "10_11_4" "10_11_5" "10_11_6") # El Capitan
+
     local UserAgent="Mozilla/5.0 "
 
-    readonly OS=$(( $RANDOM % 3 + 1))
+    local OS=$(( $RANDOM % 3 + 1))
     readonly bit=$(( $RANDOM % 2))
 
     if [ $OS == 1 ]
@@ -65,27 +73,66 @@ function generateUserAgent() {
         if [ bit == 0 ]
         then
             # 32bit
-            UserAgent+="(Windows NT $OS; rv:10.0)"
+            UserAgent+="(Windows NT $OS"
         else
             # 64bit
-            UserAgent+="(Windows NT $OS; Win64; x64; rv:10.0)"
+            UserAgent+="(Windows NT $OS; Win64; x64"
         fi
     elif [ $OS == 2 ]
     then
         # MacOS
         OS="${MAC[$(( $RANDOM % ${#MAC[@]} ))]}"
-        UserAgent+="(Macintosh; Intel Mac OS X $OS; rv:10.0)"
+        UserAgent+="(Macintosh; Intel Mac OS X $OS"
     else
         # Linux
         if [ bit == 0 ]
         then
             # 32bit
-            UserAgent+="(X11; Linux i686; rv:10.0)"
+            UserAgent+="(X11; Linux i686"
         else
             # 64bit
-            UserAgent+="(X11; Linux x86_64; rv:10.0)"
+            UserAgent+="(X11; Linux x86_64"
         fi
     fi
+
+    readonly Browser=$(( $RANDOM % 2 ))
+    local VER=""
+
+    if [ $Browser == 1 ]
+    then
+        # Firefox
+        readonly FF=( "50.0" "50.0.1" "50.0.2" "50.1.0"
+                      "51.0" "51.0.1" "51.0.2" "51.0.3"
+                      "52.0" "52.0.1" "52.0.2"
+                      "53.0" "53.0.1" "53.0.2" "53.0.3"
+                      "54.0" "54.0.1"
+                      "55.0" "55.0.1" "55.0.2" "55.0.3"
+                      "56.0" "56.0.1" "56.0.2"
+                      "57.0" "57.0.1" "57.0.2" "57.0.3" "57.0.4"
+                      "58.0" "58.0.1" "58.0.2"
+                      "59.0" "59.0.1" "59.0.2" "59.0.3"
+                      "60.0" "60.0.1" "60.0.2"
+                      "61.0" "61.0.1" "61.0.2"
+                      "62.0" "62.0.1" "62.0.2" "62.0.3"
+                      "63.0" "63.0.1" "63.0.2" "63.0.3"
+                      "64.0" "64.0.1" "64.0.2"
+                      "65.0" "65.0.1" "65.0.2"
+                      "66.0" )
+        VER=${FF[$(( $RANDOM % ${#FF[@]} ))]}
+        UserAgent+="; rv:$VER) Gecko/20100101 Firefox/$VER"
+    else
+        # Chrome
+        readonly CH=( "56.0.2924" "57.0.2987" "58.0.3029"
+                      "59.0.3071" "60.0.3112" "61.0.3163"
+                      "62.0.3202" "63.0.3239" "64.0.3282"
+                      "65.0.3325" "66.0.3359" "67.0.3396"
+                      "68.0.3440" "69.0.3497" "70.0.3538"
+                      "71.0.3578" "72.0.3626" "73.0.3683" )
+        VER=${CH[$(( $RANDOM % ${#CH[@]} ))]}
+        UserAgent+=") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$VER Safari/537.36"
+    fi
+
+    echo $UserAgent
 }
 
 function Engine() {
@@ -97,7 +144,7 @@ function Engine() {
     readonly LIST="$(cat badwords)"
     while true; do
         RES="$(curl -L -A "$USERAGENT" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
-        if [ $? -eq 0  ] && [ "$(echo "$RES" | wc -l)" > 1 ]
+        if [ $? -eq 0  ] && [ $(echo "$RES" | wc -l) > 1 ]
         then
             NUM="$(( $RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))"
             ALT="$URL"
@@ -131,23 +178,9 @@ function main() {
                     "https://www.macrumors.com"
                     "https://www.cnet.com"
                   )
-    readonly USERAGENT=( "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1"
-                         "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1"
-                         "Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1"
-                         "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:14.0) Gecko/20120405 Firefox/14.0a1"
-                         "Mozilla/5.0 (Windows NT 6.1; rv:14.0) Gecko/20120405 Firefox/14.0a1"
-                         "Mozilla/5.0 (Windows NT 5.1; rv:14.0) Gecko/20120405 Firefox/14.0a1"
-                         "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13"
-                         "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13"
-                         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13"
-                         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_4) AppleWebKit/537.13 (KHTML, like Gecko) Chrome/24.0.1290.1 Safari/537.13"
-                         "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
-                         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
-                         "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3"
-                       )
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/7"
-        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "${USERAGENT[$(( $RANDOM % ${#USERAGENT[@]} ))]}" &
+        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" &
         PIDS+=($!)
         sleep 0.2
     done
