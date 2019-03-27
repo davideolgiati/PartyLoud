@@ -20,12 +20,13 @@ EOF
 
 function DisplayHelp() {
     cat << 'EOF'
- =================[ USAGE ]=================
+==================[ HELP ]==================
 
-do not overthink, just run it this way:
-./partyloud.sh [# of threads]
+  do not overthink, just run it this way :
 
-# of threads must be 0 < x < 25
+       ./partyloud.sh [# of threads]
+
+      # of threads must be 0 < x < 25
 EOF
 }
 
@@ -144,7 +145,7 @@ function Engine() {
     readonly LIST="$(cat badwords)"
     while true; do
         RES="$(curl -L -A "$USERAGENT" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
-        if [ $? -eq 0  ] && [ $(echo "$RES" | wc -l) > 1 ]
+        if [[ $? -eq 0  ]] && [[ $(echo "$RES" | wc -l) > 1 ]]
         then
             NUM="$(( $RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))"
             ALT="$URL"
@@ -179,7 +180,7 @@ function main() {
                     "https://www.cnet.com"
                   )
     for ((i=1; i<=$1; i++)); do
-        progress "[+] Starting HTTP Engines ... " "$i/7"
+        progress "[+] Starting HTTP Engines ... " "$i/$1"
         Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" &
         PIDS+=($!)
         sleep 0.2
@@ -213,7 +214,7 @@ logo
 
 if [ $# == 1 ]
 then
-    if [[ $1 =~ '^[0-9]+$' ]] && [ $1 > 0 ] && [ $1 < 25 ]
+    if [[ $1 =~ ^[[:digit:]]+$ ]] && [[ $1 > 0 ]] && [[ $1 < 25 ]]
     then
         main $1
     else
