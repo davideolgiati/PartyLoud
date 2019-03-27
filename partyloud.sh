@@ -142,7 +142,7 @@ function Engine() {
     local RES=""
     local NUM=0
     local WORDS=0;
-    readonly LIST="$(cat badwords)"
+    readonly LIST="$3"
     while true; do
         RES="$(curl -L -A "$USERAGENT" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
         if [[ $? -eq 0  ]] && [[ $(echo "$RES" | wc -l) > 1 ]]
@@ -179,13 +179,14 @@ function main() {
                     "https://www.macrumors.com"
                     "https://www.cnet.com"
                   )
+    readonly LIST="$(cat badwords)"
+
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/$1"
-        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" &
+        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$LIST" &
         PIDS+=($!)
         sleep 0.2
     done
-    cd ..
 
     clearLines 1
     echo -ne "[+] HTTP Engines Started!\n"
