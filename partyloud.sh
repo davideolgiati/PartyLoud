@@ -136,15 +136,34 @@ function generateUserAgent() {
     echo $UserAgent
 }
 
+LOCK=false;
+
+function getLock() {
+    echo "$1 waiting for lock ..."
+    while $LOCK; do
+        :
+    done
+    LOCK=true;
+    echo "$1 has lock!"
+}
+
+function freeLock() {
+    echo "$1 freeing lock ..."
+    LOCK=false;
+}
+
 function Engine() {
     local URL="$1"
-    local ALT="$2"
+    local ALT="$1"
     local RES=""
     local NUM=0
     local WORDS=0;
-    readonly LIST="$3"
+    local LIST="$3"
+    readonly id="$4"
     while true; do
-        RES="$(curl -L -A "$USERAGENT" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
+        getLock $id
+        RES="$(curl -L -A "$2" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
+        freeLock $id
         if [[ $? -eq 0  ]] && [[ $(echo "$RES" | wc -l) > 1 ]]
         then
             NUM="$(( $RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))"
@@ -156,7 +175,7 @@ function Engine() {
         fi
         WORDS="$(( $RANDOM % 100 + 150 ))" # Guessing words on the web page
         NUM="0.$(( $RANDOM % 1000 + 3500 ))" # Guessing read speed
-        sleep "$(echo "$NUM * $WORDS / 1" | bc)" # Simulating reading
+        sleep "$(echo "(($NUM * $WORDS) * 0.$(( $RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
     done
 }
 
@@ -179,11 +198,11 @@ function main() {
                     "https://www.macrumors.com"
                     "https://www.cnet.com"
                   )
-    readonly LIST="$(cat badwords)"
+    readonly BW="$(cat badwords)"
 
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/$1"
-        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$LIST" &
+        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$i" &
         PIDS+=($!)
         sleep 0.2
     done
@@ -210,12 +229,17 @@ function main() {
     #killall python
 }
 
+#set -o pipefail
+#set -e
+#set -u
+#set -f
+
 clear
 logo
 
 if [ $# == 1 ]
 then
-    if [[ $1 =~ ^[[:digit:]]+$ ]] && [[ $1 > 0 ]] && [[ $1 < 25 ]]
+    if [[ $1 > 0 ]] && [[ $1 < 25 ]]
     then
         main $1
     else
