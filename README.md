@@ -8,8 +8,7 @@
 )
 
 PartyLoud is a bash script to create fake internet traffic
-to mitigate tracking from hacker on local network or IPS
-This script was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py")
+to mitigate tracking from hacker on local network or IPS inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py")
 
 ##### :warning: Currently PartyLoud has been only tested on Debian 9 and Mac OSX 10.14. :warning:
 
@@ -20,6 +19,32 @@ This script was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py"
 * [Usage](#usage)
 
 ## Changelog
+
+## [0.0.6] - 2019-03-26
+### :new: Added
+- Re-added User defined # of threads
+    - upper bound = 24
+    - lower bound = 1
+- Now UserAgent is generated using generateUserAgent function.
+- OS List
+    - Windows 10
+    - Windows 8.1
+    - Windows 8
+    - Windows 7
+    - MacOS Mojave
+    - MacOS High Sierra
+    - MacOS Sierra
+    - MacOs El Capitan
+    - Linux (generic)
+- Browser List
+    - Mozilla Firefox 50 - 66
+    - Google Chrome 56 - 73
+
+### :white_check_mark: Changed
+- Added Help screen
+- Fixed a bug that caused a division by 0 to computed during Engine execution
+- Fixed a bug that caused a file named "1" to be generated
+- Minor changes in UI
 
 ## [0.0.5] - 2019-03-21
 ### :new: Added
@@ -59,7 +84,8 @@ backup URL is used)
 - Major UI Improvemnts
 
 ## [0.0.1] - 2019-03-17
-### :new: Added
+### :new
+: Added
 - Initilal Alpha
 - Added a while loop to start a used defined number of noisy.py process
 - Added a minimal UI
@@ -88,9 +114,8 @@ Run 'partyloud':
 ./partyloud.sh
 ```
 
-In the future, I'll add an option to set the number of parallel at start
-(currently, it is fixed to 7)
-
 ##### To stop the script just press any key
-:warning: Do not stop this script using CTRL-C
 
+:warning: Do not stop this script using CTRL-C
+Killing the script using CTRL-C will cause the background process to
+remain alive even after main script has quit
