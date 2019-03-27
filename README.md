@@ -84,8 +84,7 @@ backup URL is used)
 - Major UI Improvemnts
 
 ## [0.0.1] - 2019-03-17
-### :new
-: Added
+### :new: Added
 - Initilal Alpha
 - Added a while loop to start a used defined number of noisy.py process
 - Added a minimal UI
@@ -117,5 +116,6 @@ Run 'partyloud':
 ##### To stop the script just press any key
 
 :warning: Do not stop this script using CTRL-C
+
 Killing the script using CTRL-C will cause the background process to
 remain alive even after main script has quit
