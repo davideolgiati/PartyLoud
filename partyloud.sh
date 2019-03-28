@@ -32,13 +32,13 @@ EOF
 
 function center() {
     columns="$(tput cols)"
-    printf "%*s" $(( (${#1} - columns) / 2))
+    printf "%*s" "$(( (${#1} - columns) / 2))"
     echo -ne "$1"
 }
 
 function clearLines() {
     for ((x=1; x<="$1"; x++)); do
-        if [ $x != $1 ]
+        if [ "$x" != "$1" ]
         then
             echo -ne "\e[1A"
         fi
@@ -64,14 +64,14 @@ function generateUserAgent() {
 
     local UserAgent="Mozilla/5.0 "
 
-    local OS=$(( $RANDOM % 3 + 1))
-    readonly bit=$(( $RANDOM % 2))
+    local OS=$(( RANDOM % 3 + 1))
+    readonly bit=$(( RANDOM % 2))
 
-    if [ $OS == 1 ]
+    if [ "$OS" == 1 ]
     then
         # Windows
-        OS="${WIN[$(( $RANDOM % ${#WIN[@]} ))]}"
-        if [ bit == 0 ]
+        OS=${WIN[$(( RANDOM % ${#WIN[@]} ))]}
+        if [ "$bit" == 0 ]
         then
             # 32bit
             UserAgent+="(Windows NT $OS"
@@ -79,14 +79,14 @@ function generateUserAgent() {
             # 64bit
             UserAgent+="(Windows NT $OS; Win64; x64"
         fi
-    elif [ $OS == 2 ]
+    elif [ "$OS" == 2 ]
     then
         # MacOS
-        OS="${MAC[$(( $RANDOM % ${#MAC[@]} ))]}"
+        OS=${MAC[$(( RANDOM % ${#MAC[@]} ))]}
         UserAgent+="(Macintosh; Intel Mac OS X $OS"
     else
         # Linux
-        if [ bit == 0 ]
+        if [ "$bit" == 0 ]
         then
             # 32bit
             UserAgent+="(X11; Linux i686"
@@ -96,10 +96,10 @@ function generateUserAgent() {
         fi
     fi
 
-    readonly Browser=$(( $RANDOM % 2 ))
+    readonly Browser=$(( RANDOM % 2 ))
     local VER=""
 
-    if [ $Browser == 1 ]
+    if [ "$Browser" == 1 ]
     then
         # Firefox
         readonly FF=( "50.0" "50.0.1" "50.0.2" "50.1.0"
@@ -119,7 +119,7 @@ function generateUserAgent() {
                       "64.0" "64.0.1" "64.0.2"
                       "65.0" "65.0.1" "65.0.2"
                       "66.0" )
-        VER=${FF[$(( $RANDOM % ${#FF[@]} ))]}
+        VER=${FF[$(( RANDOM % ${#FF[@]} ))]}
         UserAgent+="; rv:$VER) Gecko/20100101 Firefox/$VER"
     else
         # Chrome
@@ -129,53 +129,52 @@ function generateUserAgent() {
                       "65.0.3325" "66.0.3359" "67.0.3396"
                       "68.0.3440" "69.0.3497" "70.0.3538"
                       "71.0.3578" "72.0.3626" "73.0.3683" )
-        VER=${CH[$(( $RANDOM % ${#CH[@]} ))]}
+        VER=${CH[$(( RANDOM % ${#CH[@]} ))]}
         UserAgent+=") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$VER Safari/537.36"
     fi
 
-    echo $UserAgent
+    echo "$UserAgent"
 }
 
-LOCK=false;
-
 function getLock() {
-    echo "$1 waiting for lock ..."
-    while $LOCK; do
+    while ! mkdir /tmp/partyloud.lock 2>/dev/null;
+    do
         :
     done
-    LOCK=true;
-    echo "$1 has lock!"
 }
 
 function freeLock() {
-    echo "$1 freeing lock ..."
-    LOCK=false;
+    rm -fr /tmp/partyloud.lock
 }
 
 function Engine() {
-    local URL="$1"
-    local ALT="$1"
+    local URL=$1
+    local ALT=$1
     local RES=""
     local NUM=0
     local WORDS=0;
-    local LIST="$3"
-    readonly id="$4"
+    local LIST=$3
+    readonly id=$4
     while true; do
-        getLock $id
-        RES="$(curl -L -A "$2" "$URL" 2>&1 | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")"
-        freeLock $id
-        if [[ $? -eq 0  ]] && [[ $(echo "$RES" | wc -l) > 1 ]]
+        getLock "$id"
+        RES=$(curl -L -A "$2" "$URL" 2>&1)
+        freeLock "$id"
+        RES=$(echo "$RES" | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")
+        if [[ "$(echo "$RES" | wc -l)" -gt 1 ]]
         then
-            NUM="$(( $RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))"
-            ALT="$URL"
-            URL="$(echo "$RES" | sed "${NUM}q;d")" # Random Link
+            NUM=$(( RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))
+            ALT=$URL
+            URL=$(echo "$RES" | sed "${NUM}q;d") # Random Link
         else
-            URL="$ALT"
-            ALT="$1"
+            URL=$ALT
+            ALT=$1
         fi
-        WORDS="$(( $RANDOM % 100 + 150 ))" # Guessing words on the web page
-        NUM="0.$(( $RANDOM % 1000 + 3500 ))" # Guessing read speed
-        sleep "$(echo "(($NUM * $WORDS) * 0.$(( $RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
+        WORDS=$(( RANDOM % 100 + 150 )) # Guessing words on the web page
+        NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
+
+        sleep 2
+        #sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
+        RES=""
     done
 }
 
@@ -198,11 +197,12 @@ function main() {
                     "https://www.macrumors.com"
                     "https://www.cnet.com"
                   )
-    readonly BW="$(cat badwords)"
+    readonly BW=$(cat badwords)
+    export LOCK=false;
 
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/$1"
-        Engine "${URLS[$(( $RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$i" &
+        Engine "${URLS[$(( RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$i" &
         PIDS+=($!)
         sleep 0.2
     done
@@ -214,7 +214,7 @@ function main() {
     echo -ne "\n\n"
 
     center "[ PRESS ANY KEY TO STOP ]"
-    read RESPONSE
+    read -r RESPONSE
     clearLines 4
 
     for PID in "${PIDS[@]}"; do
@@ -237,11 +237,13 @@ function main() {
 clear
 logo
 
+rm -fr /tmp/partyloud.lock
+
 if [ $# == 1 ]
 then
-    if [[ $1 > 0 ]] && [[ $1 < 25 ]]
+    if [[ "$1" -gt 0 ]] && [[ "$1" -lt 25 ]]
     then
-        main $1
+        main "$1"
     else
         DisplayHelp
     fi
