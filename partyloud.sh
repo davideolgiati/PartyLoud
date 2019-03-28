@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function logo() {
 cat << 'EOF'
@@ -172,8 +172,7 @@ function Engine() {
         WORDS=$(( RANDOM % 100 + 150 )) # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
-        sleep 2
-        #sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
+        sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
         RES=""
     done
 }
@@ -203,7 +202,7 @@ function main() {
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/$1"
         Engine "${URLS[$(( RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$i" &
-        PIDS+=($!)
+        PIDS+=("$!")
         sleep 0.2
     done
 
@@ -217,22 +216,17 @@ function main() {
     read -r RESPONSE
     clearLines 4
 
-    for PID in "${PIDS[@]}"; do
+    for PID in ${PIDS[@]};
+    do
         progress "[+] Terminating HTTP Engines ..." "pid: $PID"
         kill -9 "$PID"
         wait "$PID" 2>/dev/null
-        sleep 0.2
     done
 
     clearLines 1
     echo -ne "[+] HTTP Engines Stopped!\n\n"
     #killall python
 }
-
-#set -o pipefail
-#set -e
-#set -u
-#set -f
 
 clear
 logo
@@ -253,3 +247,5 @@ then
 else
     DisplayHelp
 fi
+
+exit 0
