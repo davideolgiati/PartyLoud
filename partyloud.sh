@@ -148,18 +148,18 @@ function freeLock() {
 }
 
 function Engine() {
-    local URL=$1
-    local ALT=$1
+    local URL="$1"
+    local ALT="$1"
     local RES=""
     local NUM=0
     local WORDS=0;
-    local LIST=$3
-    readonly id=$4
+    local -r LIST="$3"
     while true; do
-        getLock "$id"
-        RES=$(curl -L -A "$2" "$URL" 2>&1)
-        freeLock "$id"
-        RES=$(echo "$RES" | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sort | uniq | grep -vF "$LIST")
+        getLock
+        RES="$(curl -L -A "$2" "$URL" 2>&1)"
+        freeLock
+        RES="$(echo "$RES" | sed -n "/<body>/,/<\/body>/p" | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sed 's|$URL||g' | grep "^[^#]" | grep -vF "$LIST")"
+        echo -ne "$URL ->"
         if [[ "$(echo "$RES" | wc -l)" -gt 1 ]]
         then
             NUM=$(( RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))
@@ -169,10 +169,11 @@ function Engine() {
             URL=$ALT
             ALT=$1
         fi
+        echo "$URL"
         WORDS=$(( RANDOM % 100 + 150 )) # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
-        sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 4))) / 1"  | bc)" # Simulating reading
+        sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 2)) * $(( $4 / 25))) / 1"  | bc)" # Simulating reading
         RES=""
     done
 }
@@ -201,7 +202,7 @@ function main() {
 
     for ((i=1; i<=$1; i++)); do
         progress "[+] Starting HTTP Engines ... " "$i/$1"
-        Engine "${URLS[$(( RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$i" &
+        Engine "${URLS[$(( RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$1" &
         PIDS+=("$!")
         sleep 0.2
     done
