@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Globals
+readonly BW="$(cat badwords)"
+readonly BW_S="$(wc -l < badwords)"
+
+# UI FUNCTION
 function logo() {
 cat << 'EOF'
 
@@ -70,7 +75,7 @@ function generateUserAgent() {
     if [ "$OS" == 1 ]
     then
         # Windows
-        OS=${WIN[$(( RANDOM % ${#WIN[@]} ))]}
+        OS="${WIN[$(( RANDOM % ${#WIN[@]} ))]}"
         if [ "$bit" == 0 ]
         then
             # 32bit
@@ -82,7 +87,7 @@ function generateUserAgent() {
     elif [ "$OS" == 2 ]
     then
         # MacOS
-        OS=${MAC[$(( RANDOM % ${#MAC[@]} ))]}
+        OS="${MAC[$(( RANDOM % ${#MAC[@]} ))]}"
         UserAgent+="(Macintosh; Intel Mac OS X $OS"
     else
         # Linux
@@ -139,7 +144,7 @@ function generateUserAgent() {
 function getLock() {
     while ! mkdir /tmp/partyloud.lock 2>/dev/null;
     do
-        :
+        sleep 0.2
     done
 }
 
@@ -153,67 +158,63 @@ function Engine() {
     local RES=""
     local NUM=0
     local WORDS=0;
+    local SIZE=0;
     local -r LIST="$3"
     while true; do
         getLock
-        RES="$(curl -L -A "$2" "$URL" 2>&1)"
+        RES="$(curl -L -A "$2" -w '%{http_code}' "$URL" 2>&1)"
         freeLock
-        RES="$(echo "$RES" | sed -n "/<body>/,/<\/body>/p" | grep -Eo 'href="[^\"]+"' |  grep -Eo '(http|https)://[^"]+' | sed 's|$URL||g' | grep "^[^#]" | grep -vF "$LIST")"
-        echo -ne "$URL ->"
-        if [[ "$(echo "$RES" | wc -l)" -gt 1 ]]
+        #echo -ne "$URL -> "
+        if [[ "${RES:(-3)}" == "200" ]]
         then
-            NUM=$(( RANDOM % $(( $(echo "$RES" | wc -l) - 1 )) + 1 ))
-            ALT=$URL
-            URL=$(echo "$RES" | sed "${NUM}q;d") # Random Link
+            RES="$(grep -Eo 'href="[^\"]+"' <<< $RES | grep -Eo '(http|https)://[^"]+')"
+            SIZE="$(echo "$RES" | wc -l)"
+            if [[ $SIZE  -gt 5 ]]
+            then
+                ALT="$URL"
+                URL=""
+                while [[ $URL == "" ]]
+                do
+                    NUM="$(( RANDOM % $(( $SIZE - 1 )) + 1 ))"
+                    URL="$(sed "${NUM}q;d" <<< $RES | grep -v 'ico\>')" # Random Link
+                done
+            else
+                URL="$ALT"
+                ALT="$1"
+            fi
         else
             URL=$ALT
             ALT=$1
         fi
-        echo "$URL"
-        WORDS=$(( RANDOM % 100 + 150 )) # Guessing words on the web page
+        echo -ne "\n$URL "
+        WORDS="$(( RANDOM % 100 + 150 ))" # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
-        sleep "$(echo "(($NUM * $WORDS) * 0.$(( RANDOM % 5 + 2)) * $(( $4 / 25))) / 1"  | bc)" # Simulating reading
+        sleep "$(echo "(($NUM * $WORDS) * $(( $4 / 20))) / 1"  | bc)" # Simulating reading
         RES=""
     done
 }
 
 function main() {
     declare -a PIDS
-    readonly URLS=( "https://github.com"
-                    "https://en.wikipedia.org/wiki/Main_Page"
-                    "https://stackexchange.com"
-                    "https://edition.cnn.com"
-                    "https://news.google.com/"
-                    "https://www.nytimes.com"
-                    "https://www.theguardian.com/international"
-                    "https://gitlab.com/explore"
-                    "https://techcrunch.com"
-                    "https://www.wired.com"
-                    "https://mashable.com/"
-                    "https://www.theverge.com"
-                    "https://www.digitaltrends.com"
-                    "https://www.techradar.com"
-                    "https://www.macrumors.com"
-                    "https://www.cnet.com"
-                  )
-    readonly BW=$(cat badwords)
-    export LOCK=false;
+    local -r L_LEN="$(( $(wc -l < partyloud.conf) -1 ))"
+    local CURR_URL=""
 
     for ((i=1; i<=$1; i++)); do
-        progress "[+] Starting HTTP Engines ... " "$i/$1"
-        Engine "${URLS[$(( RANDOM % ${#URLS[@]} ))]}" "$(generateUserAgent)" "$BW" "$1" &
+        CURR_URL="$(sed "$(( RANDOM % L_LEN + 1))q;d" < partyloud.conf)"
+        #progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
+        Engine "$CURR_URL" "$(generateUserAgent)" "$BW" "$1" &
         PIDS+=("$!")
         sleep 0.2
     done
 
     clearLines 1
-    echo -ne "[+] HTTP Engines Started!\n"
+    #echo -ne "[+] HTTP Engines Started!\n"
 
     local RESPONSE=""
     echo -ne "\n\n"
 
-    center "[ PRESS ANY KEY TO STOP ]"
+    #center "[ PRESS ENTER TO STOP ]"
     read -r RESPONSE
     clearLines 4
 
