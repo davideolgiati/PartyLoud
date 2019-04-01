@@ -152,6 +152,16 @@ function freeLock() {
     rm -fr /tmp/partyloud.lock
 }
 
+
+function stop() {
+    for PID in ${PIDS[@]};
+    do
+        progress "[+] Terminating HTTP Engines ..." "pid: $PID"
+        kill -9 "$PID"
+        wait "$PID" 2>/dev/null
+    done
+}
+
 function Engine() {
     local URL="$1"
     local ALT="$1"
@@ -164,7 +174,6 @@ function Engine() {
         getLock
         RES="$(curl -L -A "$2" -w '%{http_code}' "$URL" 2>&1)"
         freeLock
-        #echo -ne "$URL -> "
         if [[ "${RES:(-3)}" == "200" ]]
         then
             RES="$(grep -Eo 'href="[^\"]+"' <<< $RES | grep -Eo '(http|https)://[^"]+')"
@@ -186,7 +195,6 @@ function Engine() {
             URL=$ALT
             ALT=$1
         fi
-        echo -ne "\n$URL "
         WORDS="$(( RANDOM % 100 + 150 ))" # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
@@ -197,37 +205,40 @@ function Engine() {
 
 function main() {
     declare -a PIDS
+    TEST=true
+
+    export PIDS
+    export TEST
+
+    trap stop SIGINT
+    trap stop SIGTERM
+    trap stop EXIT
+
     local -r L_LEN="$(( $(wc -l < partyloud.conf) -1 ))"
     local CURR_URL=""
 
     for ((i=1; i<=$1; i++)); do
         CURR_URL="$(sed "$(( RANDOM % L_LEN + 1))q;d" < partyloud.conf)"
-        #progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
+        progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
         Engine "$CURR_URL" "$(generateUserAgent)" "$BW" "$1" &
         PIDS+=("$!")
         sleep 0.2
     done
 
     clearLines 1
-    #echo -ne "[+] HTTP Engines Started!\n"
+    echo -ne "[+] HTTP Engines Started!\n"
 
     local RESPONSE=""
     echo -ne "\n\n"
 
-    #center "[ PRESS ENTER TO STOP ]"
+    center "[ PRESS ENTER TO STOP ]"
     read -r RESPONSE
     clearLines 4
 
-    for PID in ${PIDS[@]};
-    do
-        progress "[+] Terminating HTTP Engines ..." "pid: $PID"
-        kill -9 "$PID"
-        wait "$PID" 2>/dev/null
-    done
+    stop
 
     clearLines 1
     echo -ne "[+] HTTP Engines Stopped!\n\n"
-    #killall python
 }
 
 clear
