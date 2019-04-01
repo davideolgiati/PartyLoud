@@ -163,6 +163,16 @@ function stop() {
     done
 }
 
+function filter() {
+    local URLS="$1"
+    for FILER in ${BW[@]};
+    do
+        URLS="$(grep -v $FILER <<< $URLS)"
+        sleep 1
+    done
+    echo URLS
+}
+
 function Engine() {
     local URL="$1"
     local ALT="$1"
@@ -177,7 +187,7 @@ function Engine() {
         freeLock
         if [[ "${RES:(-3)}" == "200" ]]
         then
-            RES="$(grep -Eo 'href="[^\"]+"' <<< $RES | grep -Eo '(http|https)://[^"]+')"
+            RES="$(grep -Eo '\b(https|http)://[-A-Za-z0-9_|.]*[-A-Za-z0-9+_|]/([^\."?:;,]*)/' <<< $RES)"
             SIZE="$(echo "$RES" | wc -l)"
             if [[ $SIZE  -gt 5 ]]
             then
@@ -186,7 +196,7 @@ function Engine() {
                 while [[ $URL == "" ]]
                 do
                     NUM="$(( RANDOM % $(( $SIZE - 1 )) + 1 ))"
-                    URL="$(sed "${NUM}q;d" <<< $RES | grep -v 'ico\>')" # Random Link
+                    URL="$(sed "${NUM}q;d" <<< $RES)" # Random Link
                 done
             else
                 URL="$ALT"
