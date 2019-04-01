@@ -142,10 +142,11 @@ function generateUserAgent() {
 }
 
 function getLock() {
-    while ! mkdir /tmp/partyloud.lock 2>/dev/null;
+    while ! [ -f  /tmp/partyloud.lock ];
     do
         sleep 0.2
     done
+    mkdir /tmp/partyloud.lock 2>/dev/null
 }
 
 function freeLock() {
