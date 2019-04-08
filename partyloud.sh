@@ -166,7 +166,7 @@ function filter() {
     local URLS="$1"
     for FILTER in ${BW[@]};
     do
-        URLS="$(grep -v $FILTER <<< $URLS)"
+        URLS="$(grep -v "$FILTER" <<< "$URLS")"
     done
     echo "$URLS"
 }
@@ -176,20 +176,20 @@ function Engine() {
     local ALT="$1"
     local RES=""
     local NUM=0
-    local WORDS=0;
-    local SIZE=0;
+    local WORDS=0
+    local SIZE=0
     while true; do
         getLock
         RES="$(curl -L -A "$2" -w '%{http_code}' "$URL" 2>&1)"
         freeLock
-        #echo -ne "$URL -> "
+        echo -ne "$URL -> "
         if [[ "${RES:(-3)}" == "200" ]]
         then
-            RES="$(grep -Eo '\b(https|http)://[-A-Za-z0-9_|.]*[-A-Za-z0-9+_|]/([^\."?:;,]*)' <<< $RES)"
-            SIZE="$(wc -l <<< $RES)"
-            RES="$(filter $RES)"
-            echo "$RES"
-            if [[ $SIZE -gt 5 ]]
+            RES="$(grep -Eo '\b(https|http)://[-A-Za-z0-9_|.]*[-A-Za-z0-9+_|](/([^\."?:;,\<\>]*(.html)?)?)' <<< "$RES" | sort | uniq)"
+            RES="$(filter "$RES")"
+            SIZE="$(wc -l <<< "$RES")"
+            #echo "$RES"
+            if [[ $SIZE -gt 3 ]]
             then
                 ALT="$URL"
                 NUM="$(( RANDOM % $(( $SIZE - 1 )) + 1 ))"
@@ -202,12 +202,12 @@ function Engine() {
             URL="$ALT"
             ALT="$1"
         fi
-        #echo "$URL"
+        echo "$URL"
         WORDS="$(( RANDOM % 100 + 150 ))" # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
-        #sleep "$(bc <<< "(($NUM * $WORDS) / 1")") # Simulating reading
-        RES=""
+        sleep 2
+        #sleep "$(bc <<< "(($NUM * $WORDS) / 1)")" # Simulating reading
     done
 }
 
