@@ -124,7 +124,7 @@ function generateUserAgent() {
                       "64.0" "64.0.1" "64.0.2"
                       "65.0" "65.0.1" "65.0.2"
                       "66.0" )
-        VER=${FF[$(( RANDOM % ${#FF[@]} ))]}
+        VER="${FF[$(( RANDOM % ${#FF[@]} ))]}"
         UserAgent+="; rv:$VER) Gecko/20100101 Firefox/$VER"
     else
         # Chrome
@@ -134,7 +134,7 @@ function generateUserAgent() {
                       "65.0.3325" "66.0.3359" "67.0.3396"
                       "68.0.3440" "69.0.3497" "70.0.3538"
                       "71.0.3578" "72.0.3626" "73.0.3683" )
-        VER=${CH[$(( RANDOM % ${#CH[@]} ))]}
+        VER="${CH[$(( RANDOM % ${#CH[@]} ))]}"
         UserAgent+=") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/$VER Safari/537.36"
     fi
 
@@ -142,11 +142,10 @@ function generateUserAgent() {
 }
 
 function getLock() {
-    while ! [ -f  /tmp/partyloud.lock ];
+    while ! mkdir /tmp/partyloud.lock 2>/dev/null
     do
         sleep 0.2
     done
-    mkdir /tmp/partyloud.lock 2>/dev/null
 }
 
 function freeLock() {
@@ -165,12 +164,11 @@ function stop() {
 
 function filter() {
     local URLS="$1"
-    for FILER in ${BW[@]};
+    for FILTER in ${BW[@]};
     do
-        URLS="$(grep -v $FILER <<< $URLS)"
-        sleep 1
+        URLS="$(grep -v $FILTER <<< $URLS)"
     done
-    echo URLS
+    echo "$URLS"
 }
 
 function Engine() {
@@ -180,46 +178,43 @@ function Engine() {
     local NUM=0
     local WORDS=0;
     local SIZE=0;
-    local -r LIST="$3"
     while true; do
         getLock
         RES="$(curl -L -A "$2" -w '%{http_code}' "$URL" 2>&1)"
         freeLock
+        #echo -ne "$URL -> "
         if [[ "${RES:(-3)}" == "200" ]]
         then
-            RES="$(grep -Eo '\b(https|http)://[-A-Za-z0-9_|.]*[-A-Za-z0-9+_|]/([^\."?:;,]*)/' <<< $RES)"
-            SIZE="$(echo "$RES" | wc -l)"
-            if [[ $SIZE  -gt 5 ]]
+            RES="$(grep -Eo '\b(https|http)://[-A-Za-z0-9_|.]*[-A-Za-z0-9+_|]/([^\."?:;,]*)' <<< $RES)"
+            SIZE="$(wc -l <<< $RES)"
+            RES="$(filter $RES)"
+            echo "$RES"
+            if [[ $SIZE -gt 5 ]]
             then
                 ALT="$URL"
-                URL=""
-                while [[ $URL == "" ]]
-                do
-                    NUM="$(( RANDOM % $(( $SIZE - 1 )) + 1 ))"
-                    URL="$(sed "${NUM}q;d" <<< $RES)" # Random Link
-                done
+                NUM="$(( RANDOM % $(( $SIZE - 1 )) + 1 ))"
+                URL="$(sed "${NUM}q;d" <<< $RES)" # Random Link
             else
                 URL="$ALT"
                 ALT="$1"
             fi
         else
-            URL=$ALT
-            ALT=$1
+            URL="$ALT"
+            ALT="$1"
         fi
+        #echo "$URL"
         WORDS="$(( RANDOM % 100 + 150 ))" # Guessing words on the web page
         NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
 
-        sleep "$(echo "(($NUM * $WORDS) * $(( $4 / 20))) / 1"  | bc)" # Simulating reading
+        #sleep "$(bc <<< "(($NUM * $WORDS) / 1")") # Simulating reading
         RES=""
     done
 }
 
 function main() {
     declare -a PIDS
-    TEST=true
 
     export PIDS
-    export TEST
 
     trap stop SIGINT
     trap stop SIGTERM
@@ -230,19 +225,19 @@ function main() {
 
     for ((i=1; i<=$1; i++)); do
         CURR_URL="$(sed "$(( RANDOM % L_LEN + 1))q;d" < partyloud.conf)"
-        progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
-        Engine "$CURR_URL" "$(generateUserAgent)" "$BW" "$1" &
+       # progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
+        Engine "$CURR_URL" "$(generateUserAgent)" &
         PIDS+=("$!")
         sleep 0.2
     done
 
-    clearLines 1
-    echo -ne "[+] HTTP Engines Started!\n"
+   # clearLines 1
+   # echo -ne "[+] HTTP Engines Started!\n"
 
     local RESPONSE=""
     echo -ne "\n\n"
 
-    center "[ PRESS ENTER TO STOP ]"
+    #center "[ PRESS ENTER TO STOP ]"
     read -r RESPONSE
     clearLines 4
 
