@@ -51,7 +51,7 @@ clearLines() {
     done
 }
 
-function progress() {
+progress() {
     clearLines 1
     echo -ne "$1 [$2]"
 }
@@ -163,7 +163,7 @@ stop() {
 }
 
 filter() {
-    local URLS="$(grep -iv "${2}" <<< "${1}")"
+    local URLS="fs${2}"
     if [[ "${URLS}" != "" ]]
     then
         for FILTER in ${BW[@]};
@@ -174,24 +174,60 @@ filter() {
     echo "${URLS}"
 }
 
+SWCheck() {
+    local -r SW=( "echo"
+                  "curl"
+                  "grep"
+                  "sed"
+                  "awk"
+                  "wc"
+                  "sort"
+                  "uniq"
+                  "kill"
+                  "wait"
+                  "rm"
+                  "mkdir"
+                  "printf"
+                )
+    for COMMAND in ${SW[@]};
+    do
+        if [ $TEST == true ]
+        then
+            if [[ $(command -v "$COMMAND") ]]
+            then
+                tput bold; echo "[+] $COMMAND Found!"; tput sgr0
+            else
+                tput bold; tput setaf 1; echo "[!] $COMMAND not Found!!"; tput sgr0
+                TEST=false
+            fi
+        fi
+    done
+}
+
 Engine() {
     local URL="${1}"
     local ALT="${3}"
     local RES=""
-    local NUM=0
-    local WORDS=0
     local SIZE=0
     local -r URL_REGEX='\b(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
     while true; do
         getLock
-        RES="$(curl -L -A "${2}" -w '%{http_code}' "${URL}" 2>&1)" || "$(echo "")"
+        cmd=("curl" "-L" "-A" "${2}" "-w" "'%{http_code}'" "${URL}")
+        op=$("${cmd[@]}" 2>&1)
+        if [[ -n $op ]]; then
+            RES="$op"
+        else
+            RES=""
+        fi
+        # RES="$(curl -L -A "${2}" -w '%{http_code}' "${URL}" 2>&1 || echo "")"
         freeLock
-        echo "${URL} : ${RES:(-3)}"
-        if [[ "${RES}" != "" ]] && [[ "${RES:(-3)}" == "200" ]]
+        echo -ne "[*] ${URL} : ${RES:(-5)}\n"
+        #echo $RES
+        if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]
         then
             RES="$(awk -F '"' '{print $2}' <<< ${RES})"
             RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
-            RES="$(filter "${RES}" "${URL}")"
+            RES="$(filter "${RES}")"
             SIZE="$(wc -l <<< "${RES}")"
             #echo "$RES"
             if [[ "${SIZE}" -gt 3 ]]
@@ -207,51 +243,65 @@ Engine() {
             URL="${ALT}"
             ALT="${3}"
         fi
-        #echo "${URL}"
-        WORDS="$(( RANDOM % 100 + 150 ))" # Guessing words on the web page
-        NUM="0.$(( RANDOM % 1000 + 3500 ))" # Guessing read speed
-
         sleep 2
-        #sleep "$(bc <<< "(($NUM * $WORDS) / 1)")" # Simulating reading
     done
 }
 
-function main() {
-    declare -a PIDS
+main() {
+    local TEST=true
+    export TEST
+    SWCheck
+    if [ "$TEST" = true ]
+    then
+        echo -ne "\n"
+        echo -ne "[+] Testing Internet Connection ..."
+        if ping -q -c 3 8.8.8.8 &>/dev/null
+        then
+            clearLines 1
+            echo -ne "[+] Internet Connection Available!\n\n"
+            declare -a PIDS
 
-    export PIDS
+            export PIDS
 
-    trap stop SIGINT
-    trap stop SIGTERM
-    trap stop EXIT
+            trap stop SIGINT
+            trap stop SIGTERM
+            trap stop EXIT
 
-    local -r L_LEN="$(( $(wc -l < partyloud.conf) - 1 ))"
-    local CURR_URL=""
-    local ALT_URL=""
+            local -r L_LEN="$(( $(wc -l < partyloud.conf) - 1 ))"
+            local CURR_URL=""
+            local ALT_URL=""
 
-    for ((i=1; i<=$1; i++)); do
-        CURR_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
-        ALT_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
-        # progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
-        Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" &
-        PIDS+=("$!")
-        sleep 0.2
-    done
+            getLock
+            for ((i=1; i<=$1; i++)); do
+                CURR_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
+                ALT_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
+                progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
+                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${i}" &
+                PIDS+=("$!")
+                sleep 0.4
+            done
+            freeLock
 
-   # clearLines 1
-   # echo -ne "[+] HTTP Engines Started!\n"
+            clearLines 1
+            tput bold; echo -ne "[+] HTTP Engines Started!\n"; tput sgr0
 
-    local RESPONSE=""
-   # echo -ne "\n\n"
+            local RESPONSE=""
+            echo -ne "\n\n"
 
-    #center "[ PRESS ENTER TO STOP ]"
-    read -r RESPONSE
-    clearLines 4
+            tput bold; center "[ PRESS ENTER TO STOP ]"; tput sgr0
 
-    stop
+            echo -ne "\n\n"
+            read -r RESPONSE
 
-    clearLines 1
-    echo -ne "[+] HTTP Engines Stopped!\n\n"
+            stop
+
+            clearLines 1
+            echo -ne "[+] HTTP Engines Stopped!\n\n"
+        else
+            clearLines 1
+            tput bold; tput setaf 1; echo "[!] Unable to Connect to Network!"; tput sgr0
+        fi
+    fi
 }
 
 clear
