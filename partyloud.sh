@@ -36,7 +36,7 @@ EOF
 }
 
 center() {
-    columns="$(tput cols)"
+    columns=80
     printf "%*s" "$(( (${#1} - columns) / 2))"
     echo -ne "$1"
 }
@@ -53,7 +53,12 @@ clearLines() {
 
 progress() {
     clearLines 1
-    echo -ne "$1 [$2]"
+    if [ $# == 2 ]
+    then
+        echo -ne "$1 [$2]"
+    else
+        echo -ne "$1"
+    fi
 }
 
 generateUserAgent() {
@@ -164,8 +169,6 @@ stop() {
 
 filter() {
     local URLS="${1}"
-    S="$(wc -l <<< "${URLS}")"
-    printf "${S}"
     if [[ "${URLS}" != "" ]]
     then
         for FILTER in ${BW[@]};
@@ -215,19 +218,24 @@ Engine() {
     while true; do
         getLock
         cmd=("curl" "-L" "-A" "${2}" "-w" "'%{http_code}'" "${URL}")
-        if [[ -n ${URL} ]]; then
-            op=$("${cmd[@]}" 2>&1)
-            if [[ -n $op ]]; then
-                RES="$op"
-            else
-                RES=""
-            fi
+        op=$("${cmd[@]}" 2>&1)
+        if [[ -n $op ]]; then
+            RES="$op"
         else
             RES=""
         fi
         # RES="$(curl -L -A "${2}" -w '%{http_code}' "${URL}" 2>&1 || echo "")"
         freeLock
-        echo -ne "[*] ${URL} : ${RES:(-5)}\n"
+        echo -ne "[*] ${URL:0:60}"
+        if [[ "${#URL}" -gt 60 ]]
+        then
+            echo -ne "... "
+            tput cuf 6
+        else
+            tput cuf "$(( 70 - ${#URL} ))"
+        fi
+
+        echo " ${RES:(-5)}"
         if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]
         then
             RES="$(awk -F '"' '{print $2}' <<< ${RES})"
@@ -248,7 +256,7 @@ Engine() {
             ALT="${3}"
         fi
         sleep 2
-   done
+    done
 }
 
 main() {
@@ -278,7 +286,7 @@ main() {
             getLock
 
             for CURR_URL in $(cat partyloud.conf); do
-                progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
+                progress "[+] Starting HTTP Engine ($CURR_URL) ... "
                 Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${i}" &
                 PIDS+=("$!")
                 sleep 0.4
@@ -295,13 +303,14 @@ main() {
 
             tput bold; center "[ PRESS ENTER TO STOP ]"; tput sgr0
 
-            echo -ne "\n\n"
+            echo -ne "\n\n\n"
             read -r RESPONSE
 
             stop
 
             clearLines 1
-            echo -ne "[+] HTTP Engines Stopped!\n\n"
+            tput bold; echo -ne "[+] HTTP Engines Stopped!\n\n"; tput sgr0
+
         else
             clearLines 1
             tput bold; tput setaf 1; echo "[!] Unable to Connect to Network!"; tput sgr0
