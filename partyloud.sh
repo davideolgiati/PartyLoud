@@ -163,7 +163,9 @@ stop() {
 }
 
 filter() {
-    local URLS="fs${2}"
+    local URLS="${1}"
+    S="$(wc -l <<< "${URLS}")"
+    printf "${S}"
     if [[ "${URLS}" != "" ]]
     then
         for FILTER in ${BW[@]};
@@ -209,27 +211,29 @@ Engine() {
     local ALT="${3}"
     local RES=""
     local SIZE=0
-    local -r URL_REGEX='\b(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+    local -r URL_REGEX='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
     while true; do
         getLock
         cmd=("curl" "-L" "-A" "${2}" "-w" "'%{http_code}'" "${URL}")
-        op=$("${cmd[@]}" 2>&1)
-        if [[ -n $op ]]; then
-            RES="$op"
+        if [[ -n ${URL} ]]; then
+            op=$("${cmd[@]}" 2>&1)
+            if [[ -n $op ]]; then
+                RES="$op"
+            else
+                RES=""
+            fi
         else
             RES=""
         fi
         # RES="$(curl -L -A "${2}" -w '%{http_code}' "${URL}" 2>&1 || echo "")"
         freeLock
         echo -ne "[*] ${URL} : ${RES:(-5)}\n"
-        #echo $RES
         if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]
         then
             RES="$(awk -F '"' '{print $2}' <<< ${RES})"
             RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
             RES="$(filter "${RES}")"
             SIZE="$(wc -l <<< "${RES}")"
-            #echo "$RES"
             if [[ "${SIZE}" -gt 3 ]]
             then
                 ALT="${URL}"
@@ -244,7 +248,7 @@ Engine() {
             ALT="${3}"
         fi
         sleep 2
-    done
+   done
 }
 
 main() {
@@ -269,17 +273,18 @@ main() {
 
             local -r L_LEN="$(( $(wc -l < partyloud.conf) - 1 ))"
             local CURR_URL=""
-            local ALT_URL=""
+            local ALT_URL="https://www.hdblog.it"
 
             getLock
-            for ((i=1; i<=$1; i++)); do
-                CURR_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
-                ALT_URL="$(sed "$(( RANDOM % ${L_LEN} + 1))q;d" < partyloud.conf)"
+
+            for CURR_URL in $(cat partyloud.conf); do
                 progress "[+] Starting HTTP Engine ($CURR_URL) ... " "$i/$1"
                 Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${i}" &
                 PIDS+=("$!")
                 sleep 0.4
+                ALT_URL="${CURR_URL}"
             done
+
             freeLock
 
             clearLines 1
