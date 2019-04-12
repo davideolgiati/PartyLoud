@@ -42,9 +42,8 @@ center() {
 }
 
 clearLines() {
-    for ((x=1; x<="$1"; x++)); do
-        if [ "$x" != "$1" ]
-        then
+    for ((x=1; x<="${1}"; x++)); do
+        if [[ "${x}" != "${1}" ]]; then
             echo -ne "\e[1A"
         fi
         echo -ne "\033[2K\r"
@@ -53,11 +52,10 @@ clearLines() {
 
 progress() {
     clearLines 1
-    if [ $# == 2 ]
-    then
-        echo -ne "$1 [$2]"
+    if [[ "${#}" == 2 ]]; then
+        echo -ne "${1} [${2}]"
     else
-        echo -ne "$1"
+        echo -ne "${1}"
     fi
 }
 
@@ -81,27 +79,23 @@ generateUserAgent() {
     local OS="$(( RANDOM % 3 + 1 ))"
     local -r bit="$(( RANDOM % 2 ))"
 
-    if [ "${OS}" == 1 ]
-    then
+    if [[ "${OS}" == 1 ]]; then
         # Windows
         OS="${WIN[$(( RANDOM % ${#WIN[@]} ))]}"
-        if [ "${bit}" == 0 ]
-        then
+        if [[ "${bit}" == 0 ]]; then
             # 32bit
             UserAgent+="(Windows NT $OS"
         else
             # 64bit
             UserAgent+="(Windows NT $OS; Win64; x64"
         fi
-    elif [ "${OS}" == 2 ]
-    then
+    elif [[ "${OS}" == 2 ]]; then
         # MacOS
         OS="${MAC[$(( RANDOM % ${#MAC[@]} ))]}"
         UserAgent+="(Macintosh; Intel Mac OS X $OS"
     else
         # Linux
-        if [ "${bit}" == 0 ]
-        then
+        if [[ "${bit}" == 0 ]]; then
             # 32bit
             UserAgent+="(X11; Linux i686"
         else
@@ -113,8 +107,7 @@ generateUserAgent() {
     local -r Browser="$(( RANDOM % 2 ))"
     local VER=""
 
-    if [ "${Browser}" == 1 ]
-    then
+    if [[ "${Browser}" == 1 ]]; then
         # Firefox
         readonly FF=( "50.0" "50.0.1" "50.0.2" "50.1.0"
                       "51.0" "51.0.1" "51.0.2" "51.0.3"
@@ -151,8 +144,7 @@ generateUserAgent() {
 }
 
 getLock() {
-    while ! mkdir /tmp/partyloud.lock 2>/dev/null
-    do
+    while ! mkdir /tmp/partyloud.lock 2>/dev/null; do
         sleep 0.2
     done
 }
@@ -163,8 +155,7 @@ freeLock() {
 
 
 stop() {
-    for PID in ${PIDS[@]};
-    do
+    for PID in ${PIDS[@]}; do
         progress "[+] Terminating HTTP Engines ..." "pid: ${PID}"
         kill -9 "$PID"
         wait "$PID" 2>/dev/null
@@ -173,10 +164,8 @@ stop() {
 
 filter() {
     local URLS="${1}"
-    if [[ "${URLS}" != "" ]]
-    then
-        for FILTER in ${BW[@]};
-        do
+    if [[ "${URLS}" != "" ]]; then
+        for FILTER in ${BW[@]}; do
             URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
         done
     fi
@@ -198,12 +187,9 @@ SWCheck() {
                   "mkdir"
                   "printf"
                 )
-    for COMMAND in ${SW[@]};
-    do
-        if [ $TEST == true ]
-        then
-            if [[ $(command -v "$COMMAND") ]]
-            then
+    for COMMAND in ${SW[@]}; do
+        if [[ $TEST == true ]]; then
+            if [[ $(command -v "$COMMAND") ]]; then
                 tput bold
                 echo "[+] $COMMAND Found!"
                 tput sgr0
@@ -226,7 +212,12 @@ Engine() {
     local -r URL_REGEX='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
     while true; do
         getLock
-        cmd=("curl" "-L" "-A" "${2}" "-w" "'%{http_code}'" "${URL}")
+        cmd=( "curl"
+              "--max-time" "60"
+              "-L"
+              "-A" "${2}"
+              "-w" "'%{http_code}'"
+              "${URL}" )
         op=$("${cmd[@]}" 2>&1)
         if [[ -n $op ]]; then
             RES="$op"
@@ -235,8 +226,7 @@ Engine() {
         fi
         freeLock
         echo -ne "[*] ${URL:0:60}"
-        if [[ "${#URL}" -gt 60 ]]
-        then
+        if [[ "${#URL}" -gt 60 ]]; then
             echo -ne "... "
             tput cuf 6
         else
@@ -244,14 +234,12 @@ Engine() {
         fi
 
         echo " ${RES:(-5)}"
-        if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]
-        then
+        if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]; then
             RES="$(awk -F '"' '{print $2}' <<< ${RES})"
             RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
             RES="$(filter "${RES}")"
             SIZE="$(wc -l <<< "${RES}")"
-            if [[ "${SIZE}" -gt 3 ]]
-            then
+            if [[ "${SIZE}" -gt 3 ]]; then
                 ALT="${URL}"
                 NUM="$(( RANDOM % $(( ${SIZE} - 1 )) + 1 ))"
                 URL="$(sed "${NUM}q;d" <<< ${RES})" # Random Link
@@ -271,12 +259,10 @@ main() {
     local TEST=true
     export TEST
     SWCheck
-    if [ "$TEST" = true ]
-    then
+    if [[ "$TEST" == true ]]; then
         echo -ne "\n"
         echo -ne "[+] Testing Internet Connection ..."
-        if ping -q -c 3 8.8.8.8 &>/dev/null
-        then
+        if ping -q -c 3 8.8.8.8 &>/dev/null; then
             clearLines 1
             echo -ne "[+] Internet Connection Available!\n\n"
             declare -a PIDS
@@ -340,16 +326,13 @@ logo
 
 rm -fr /tmp/partyloud.lock
 
-if [[ "${#}" == 1 ]]
-then
-    if [[ "${1}" -gt 0 ]] && [[ "${1}" -lt 25 ]]
-    then
+if [[ "${#}" == 1 ]]; then
+    if [[ "${1}" -gt 0 ]] && [[ "${1}" -lt 25 ]]; then
         main "${1}"
     else
         DisplayHelp
     fi
-elif [ "${#}" == 0 ]
-then
+elif [[ "${#}" == 0 ]]; then
     main 7
 else
     DisplayHelp
