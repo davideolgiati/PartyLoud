@@ -67,10 +67,14 @@ generateUserAgent() {
                    "6.2"   # Win 8
                    "6.1" ) # Win 7
 
-    local -r MAC=( "10_14" "10_14_1" "10_14_2" "10_14_3" "10_14_4" "10_14_5" "10_14_6"  # Mojave
-                   "10_13" "10_13_1" "10_13_2" "10_13_3" "10_13_4" "10_13_5" "10_13_6"  # High Sierra
-                   "10_12" "10_12_1" "10_12_2" "10_12_3" "10_12_4" "10_12_5" "10_12_6"  # Sierra
-                   "10_11" "10_11_1" "10_11_2" "10_11_3" "10_11_4" "10_11_5" "10_11_6") # El Capitan
+    local -r MAC=( "10_14" "10_14_1" "10_14_2" "10_14_3"
+                   "10_14_4" "10_14_5" "10_14_6"         # Mojave
+                   "10_13" "10_13_1" "10_13_2" "10_13_3"
+                   "10_13_4" "10_13_5" "10_13_6"         # High Sierra
+                   "10_12" "10_12_1" "10_12_2" "10_12_3"
+                   "10_12_4" "10_12_5" "10_12_6"         # Sierra
+                   "10_11" "10_11_1" "10_11_2" "10_11_3"
+                   "10_11_4" "10_11_5" "10_11_6")        # El Capitan
 
     local UserAgent="Mozilla/5.0 "
 
@@ -200,9 +204,14 @@ SWCheck() {
         then
             if [[ $(command -v "$COMMAND") ]]
             then
-                tput bold; echo "[+] $COMMAND Found!"; tput sgr0
+                tput bold
+                echo "[+] $COMMAND Found!"
+                tput sgr0
             else
-                tput bold; tput setaf 1; echo "[!] $COMMAND not Found!!"; tput sgr0
+                tput bold
+                tput setaf 1
+                echo "[!] $COMMAND not Found!!"
+                tput sgr0
                 TEST=false
             fi
         fi
@@ -224,7 +233,6 @@ Engine() {
         else
             RES=""
         fi
-        # RES="$(curl -L -A "${2}" -w '%{http_code}' "${URL}" 2>&1 || echo "")"
         freeLock
         echo -ne "[*] ${URL:0:60}"
         if [[ "${#URL}" -gt 60 ]]
@@ -296,12 +304,16 @@ main() {
             freeLock
 
             clearLines 1
-            tput bold; echo -ne "[+] HTTP Engines Started!\n"; tput sgr0
+            tput bold
+            echo -ne "[+] HTTP Engines Started!\n"
+            tput sgr0
 
             local RESPONSE=""
             echo -ne "\n\n"
 
-            tput bold; center "[ PRESS ENTER TO STOP ]"; tput sgr0
+            tput bold
+            center "[ PRESS ENTER TO STOP ]"
+            tput sgr0
 
             echo -ne "\n\n\n"
             read -r RESPONSE
@@ -309,11 +321,16 @@ main() {
             stop
 
             clearLines 1
-            tput bold; echo -ne "[+] HTTP Engines Stopped!\n\n"; tput sgr0
+            tput bold
+            echo -ne "[+] HTTP Engines Stopped!\n\n"
+            tput sgr0
 
         else
             clearLines 1
-            tput bold; tput setaf 1; echo "[!] Unable to Connect to Network!"; tput sgr0
+            tput bold
+            tput setaf 1
+            echo "[!] Unable to Connect to Network!"
+            tput sgr0
         fi
     fi
 }
