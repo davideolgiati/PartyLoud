@@ -164,10 +164,14 @@ stop() {
 
 filter() {
     local URLS="${1}"
-    if [[ "${URLS}" != "" ]]; then
-        for FILTER in ${BW[@]}; do
-            URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
-        done
+    if [[ "$#" == 2 ]]; then
+        URLS="$(grep -iv "${2}" <<< "${URLS}")"
+    else
+        if [[ "${URLS}" != "" ]]; then
+            for FILTER in ${BW[@]}; do
+                URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
+            done
+        fi
     fi
     echo "${URLS}"
 }
@@ -235,6 +239,7 @@ Engine() {
 
         echo " ${RES:(-5)}"
         if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]; then
+            RES="$(filter "${RES}" "src")"
             RES="$(awk -F '"' '{print $2}' <<< ${RES})"
             RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
             RES="$(filter "${RES}")"
