@@ -7,7 +7,6 @@ readonly BW_S="$(wc -l < badwords)"
 # UI FUNCTION
 logo() {
 cat << 'EOF'
-
   ___          _        _                _
  | _ \__ _ _ _| |_ _  _| |   ___ _  _ __| |
  |  _/ _` | '_|  _| || | |__/ _ \ || / _` |
@@ -24,7 +23,7 @@ EOF
 }
 
 DisplayHelp() {
-    cat << 'EOF'
+cat << 'EOF'
 ==================[ HELP ]==================
 
   do not overthink, just run it this way :
@@ -213,10 +212,12 @@ Engine() {
     while true; do
         getLock
         cmd=( "curl"
-              "--max-time" "60"
-              "-L"
-              "-A" "${2}"
-              "-w" "'%{http_code}'"
+              "--compressed" # Ask to server to compress response
+              "--header" "Accept: text/html" # Filter out everything but hml
+              "--max-time" "60" # Max wait time adjusted to 60s
+              "--location" # Follow redirect
+              "--user-agent" "${2}" # Specify user agent
+              "--write-out" "'%{http_code}'" # Show HTTP response code
               "${URL}" )
         op=$("${cmd[@]}" 2>&1)
         if [[ -n $op ]]; then
