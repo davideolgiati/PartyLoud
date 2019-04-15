@@ -28,9 +28,7 @@ cat << 'EOF'
 
   do not overthink, just run it this way :
 
-       ./partyloud.sh [# of threads]
-
-      # of threads must be 0 < x < 25
+               ./partyloud.sh
 EOF
 }
 
@@ -332,14 +330,8 @@ logo
 
 rm -fr /tmp/partyloud.lock
 
-if [[ "${#}" == 1 ]]; then
-    if [[ "${1}" -gt 0 ]] && [[ "${1}" -lt 25 ]]; then
-        main "${1}"
-    else
-        DisplayHelp
-    fi
-elif [[ "${#}" == 0 ]]; then
-    main 7
+if [[ "${#}" == 0 ]]; then
+    main
 else
     DisplayHelp
 fi
