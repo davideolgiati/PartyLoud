@@ -1,5 +1,5 @@
 # PartyLoud :sound:
-> A simple tool to do several HTTP / HTTPS requests and simulate navigation
+> A simple tool to generate fake web browsing and mitigate traking
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
