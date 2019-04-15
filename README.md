@@ -20,6 +20,29 @@ to mitigate tracking from hacker on local network or IPS inspired by [noisy.py](
 
 ## Changelog
 
+## [0.0.7] - 2019-04-15
+### :new: Added
+- HTTP requests are now atomic
+- *You can now stop partyloud via CTRL-C*
+- On startup is executed a software check, if something is missing user get notified
+- On startup is executed a connection check, if partyloud will exit if unable to  connect to network
+
+### :white_check_mark: Changed
+- Added compression option to cURL requests
+- Added max-time (aka timeout) option to cURL requests
+- Changed Header options in cURL requests to filter everything but text
+- Changes in UI:
+  - Everything fits in 80 cols
+  - Every request made will be dispalyed
+- Changed error recovery mechanism
+- Changed html parsing mechanism
+- Changed badwords wordlist
+- Changed url list
+- Changed url list location (partyloud.conf)
+
+### :no_entry: Removed
+- Removed process number option
+
 ## [0.0.6] - 2019-03-26
 ### :new: Added
 - Re-added User defined # of threads
