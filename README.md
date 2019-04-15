@@ -136,9 +136,4 @@ Run 'partyloud':
 ./partyloud.sh
 ```
 
-##### To stop the script just press any key
-
-:warning: Do not stop this script using CTRL-C
-
-Killing the script using CTRL-C will cause the background process to
-remain alive even after main script has quit
+##### To stop the script just press enter
