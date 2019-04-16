@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 
+# Copyright (C) 2019 THO
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 # Globals
-readonly BW="$(cat badwords)"
-readonly BW_S="$(wc -l < badwords)"
+readonly BW="$(< badwords)"
 
 # UI FUNCTION
 logo() {
@@ -16,6 +29,10 @@ cat << 'EOF'
 
 A simple tool to do several http request and
 simulate navigation
+
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it under certain
+conditions.
 
 17/03/2019
 
@@ -33,8 +50,7 @@ EOF
 }
 
 center() {
-    columns=80
-    printf "%*s" "$(( (${#1} - columns) / 2))"
+    printf "%*s" "$(( (${#1} - $(tput cols)) / 2))" " "
     echo -ne "$1"
 }
 
@@ -283,7 +299,7 @@ main() {
 
             getLock
 
-            for CURR_URL in $(cat partyloud.conf); do
+            for CURR_URL in $(< partyloud.conf); do
                 progress "[+] Starting HTTP Engine ($CURR_URL) ... "
                 Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${i}" &
                 PIDS+=("$!")
