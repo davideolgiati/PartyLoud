@@ -168,7 +168,7 @@ freeLock() {
 
 
 stop() {
-    for PID in ${PIDS[@]}; do
+    for PID in "${PIDS[@]}"; do
         progress "[+] Terminating HTTP Engines ..." "pid: ${PID}"
         kill -9 "$PID"
         wait "$PID" 2>/dev/null
@@ -181,7 +181,7 @@ filter() {
         URLS="$(grep -iv "${2}" <<< "${URLS}")"
     else
         if [[ "${URLS}" != "" ]]; then
-            for FILTER in ${BW[@]}; do
+            for FILTER in "${BW[@]}"; do
                 URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
             done
         fi
@@ -204,7 +204,7 @@ SWCheck() {
                   "mkdir"
                   "printf"
                 )
-    for COMMAND in ${SW[@]}; do
+    for COMMAND in "${SW[@]}"; do
         if [[ $TEST == true ]]; then
             if [[ $(command -v "$COMMAND") ]]; then
                 tput bold
@@ -244,6 +244,7 @@ Engine() {
             RES=""
         fi
         freeLock
+
         echo -ne "[*] ${URL:0:60}"
         if [[ "${#URL}" -gt 60 ]]; then
             echo -ne "... "
@@ -255,14 +256,14 @@ Engine() {
         echo " ${RES:(-5)}"
         if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]; then
             RES="$(filter "${RES}" "src")"
-            RES="$(awk -F '"' '{print $2}' <<< ${RES})"
+            RES="$(awk -F '"' '{print $2}' <<< "${RES}")"
             RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
             RES="$(filter "${RES}")"
             SIZE="$(wc -l <<< "${RES}")"
             if [[ "${SIZE}" -gt 3 ]]; then
                 ALT="${URL}"
-                NUM="$(( RANDOM % $(( ${SIZE} - 1 )) + 1 ))"
-                URL="$(sed "${NUM}q;d" <<< ${RES})" # Random Link
+                NUM="$(( RANDOM % $(( SIZE - 1 )) + 1 ))"
+                URL="$(sed "${NUM}q;d" <<< "${RES}")" # Random Link
             else
                 URL="${ALT}"
                 ALT="${3}"
@@ -293,7 +294,6 @@ main() {
             trap stop SIGTERM
             trap stop EXIT
 
-            local -r L_LEN="$(( $(wc -l < partyloud.conf) - 1 ))"
             local CURR_URL=""
             local ALT_URL="https://www.hdblog.it"
 
@@ -301,7 +301,7 @@ main() {
 
             for CURR_URL in $(< partyloud.conf); do
                 progress "[+] Starting HTTP Engine ($CURR_URL) ... "
-                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${i}" &
+                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" &
                 PIDS+=("$!")
                 sleep 0.4
                 ALT_URL="${CURR_URL}"
@@ -314,7 +314,6 @@ main() {
             echo -ne "[+] HTTP Engines Started!\n"
             tput sgr0
 
-            local RESPONSE=""
             echo -ne "\n\n"
 
             tput bold
@@ -322,7 +321,7 @@ main() {
             tput sgr0
 
             echo -ne "\n\n\n"
-            read -r RESPONSE
+            read -r _
 
             stop
 
