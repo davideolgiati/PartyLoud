@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.8] - 2019-04-17
+### :new: Added
+- HTTP/HTTPS proxy option (Thx to [acbekoac](https://github.com/acbekoac "acbekoac"))
+- Added flags for separate URL-list and blocklist file specification
+- Added disclaimer as suggested by [Samuel First](https://gitlab.com/samuelfirst "Samuel First")
+
+### :white_check_mark: Changed
+- Minor code fixes (Thx to [Samuel First](https://gitlab.com/samuelfirst "Samuel First"))
+- Minur UI improvements
+
 ## [0.0.7] - 2019-04-15
 ### :new: Added
 - HTTP requests are now atomic
