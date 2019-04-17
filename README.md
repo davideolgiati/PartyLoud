@@ -53,7 +53,13 @@ Run 'partyloud':
 ##### Just run it without any argument
 
 ```sh
-./partyloud.sh
+Usage: ./partyloud.sh [options...]
+
+-l --url-list     read URL list from specified FILE
+-b --blocklist    read blocklist from specified FILE
+-p --http-proxy   set a HTTP proxy
+-s --https-proxy  set a HTTPS proxy
+-h --help         dispaly this help
 ```
 
 ##### To stop the script just press enter
