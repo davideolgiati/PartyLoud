@@ -92,7 +92,7 @@ proxySetup() {
     local PORT="${TMP##*:}"
     local CURL_OPTIONS=""
 
-    if (echo >/dev/tcp/${IP}/${PORT}) &>/dev/null; then
+    if (echo >/dev/tcp/"${IP}"/"${PORT}") &>/dev/null; then
 
         if [[ "${PROTO}" == "https" ]]; then
             CURL_OPTIONS=" --proxy-insecure"
@@ -389,8 +389,8 @@ main() {
     fi
     echo -ne "\n"
 
-    URL_LIST="$(< $URL_LIST)"
-    BLOCKLIST="$(< $BLOCKLIST)"
+    URL_LIST="$(< "$URL_LIST")"
+    BLOCKLIST="$(< "$BLOCKLIST")"
 
     local TEST=true
     export TEST
