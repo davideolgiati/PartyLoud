@@ -14,9 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# Globals
-readonly BW="$(< badwords)"
-
 # UI FUNCTION
 logo() {
 cat << 'EOF'
@@ -31,8 +28,8 @@ A simple tool to do several http request and
 simulate navigation
 
 This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it under certain
-conditions.
+This is free software, and you are welcome to
+redistribute it under certain conditions.
 
 17/03/2019
 
@@ -41,11 +38,15 @@ EOF
 
 DisplayHelp() {
 cat << 'EOF'
-==================[ HELP ]==================
 
-  do not overthink, just run it this way :
+Usage: ./partyloud.sh [options...]
 
-               ./partyloud.sh
+-l --url-list     read URL list from specified FILE
+-b --blocklist    read blocklist from specified FILE
+-p --http-proxy   set a HTTP proxy
+-s --https-proxy  set a HTTPS proxy
+-h --help         dispaly this help
+
 EOF
 }
 
@@ -57,9 +58,10 @@ center() {
 clearLines() {
     for ((x=1; x<="${1}"; x++)); do
         if [[ "${x}" != "${1}" ]]; then
-            echo -ne "\e[1A"
+            tput cuu1
         fi
-        echo -ne "\033[2K\r"
+        tput el1
+        echo -ne "\r"
     done
 }
 
@@ -70,6 +72,36 @@ progress() {
     else
         echo -ne "${1}"
     fi
+}
+
+proxySetup() {
+    local TMP=""
+    local PROTO="$2"
+
+    if [[ "$1" == http://* ]] ; then
+        PROTO="http"
+        TMP="${1:7}"
+    elif [[ "$1" == https://* ]] ; then
+        PROTO="https"
+        TMP="${1:8}"
+    else
+        TMP="$1"
+    fi
+
+    local IP="${TMP%%:*}"
+    local PORT="${TMP##*:}"
+    local CURL_OPTIONS=""
+
+    if (echo >/dev/tcp/${IP}/${PORT}) &>/dev/null; then
+
+        if [[ "${PROTO}" == "https" ]]; then
+            CURL_OPTIONS=" --proxy-insecure"
+        fi
+
+        CURL_OPTIONS="${CURL_OPTIONS} --proxy ${PROTO}://${IP}:${PORT}"
+    fi
+
+    echo "${CURL_OPTIONS}"
 }
 
 generateUserAgent() {
@@ -181,7 +213,7 @@ filter() {
         URLS="$(grep -iv "${2}" <<< "${URLS}")"
     else
         if [[ "${URLS}" != "" ]]; then
-            for FILTER in "${BW[@]}"; do
+            for FILTER in $BLOCKLIST; do
                 URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
             done
         fi
@@ -236,6 +268,7 @@ Engine() {
               "--location" # Follow redirect
               "--user-agent" "${2}" # Specify user agent
               "--write-out" "'%{http_code}'" # Show HTTP response code
+              "${4}" # Proxy options
               "${URL}" )
         op=$("${cmd[@]}" 2>&1)
         if [[ -n $op ]]; then
@@ -277,6 +310,88 @@ Engine() {
 }
 
 main() {
+    local URL_LIST="partyloud.conf"
+    local BLOCKLIST="badwords"
+    local PROXY_OPT=""
+
+    while [[ "$1" =~ ^- ]]; do
+        case "$1" in
+            -l | --url-list )
+                shift
+                if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+                    if [[ -e "$1" ]]; then
+                        URL_LIST="$1"
+                    else
+                        tput bold
+                        echo "[!] a file named \"$1\" does not exist"
+                        tput sgr0
+                        DisplayHelp
+                        exit 1
+                    fi
+                else
+                    DisplayHelp
+                    exit 1
+                fi
+                ;;
+            -b | --blocklist )
+                shift
+                if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+                    if [[ -e "$1" ]]; then
+                        BLOCKLIST="$1"
+                    else
+                        tput bold
+                        echo "[!] a file named \"$1\" does not exist"
+                        tput sgr0
+                        DisplayHelp
+                        exit 1
+                    fi
+                else
+                    DisplayHelp
+                    exit 1
+                fi
+                ;;
+            -p | --http-proxy )
+                shift
+                if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+                    PROXY_OPT="$(proxySetup "$1" "http")"
+                else
+                    DisplayHelp
+                    exit 1
+                fi
+                ;;
+            -s | --https-proxy )
+                shift
+                if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+                    PROXY_OPT="$(proxySetup "$1" "https")"
+                else
+                    DisplayHelp
+                    exit 1
+                fi
+                ;;
+            -h | --help )
+                DisplayHelp
+                exit 0
+                ;;
+            *)
+                DisplayHelp
+                exit 1
+                ;;
+        esac
+        shift
+    done
+
+    export BLOCKLIST
+
+    echo "[+] Using $URL_LIST as URL List"
+    echo "[+] Using $BLOCKLIST as Blocklist"
+    if [[ "$PROXY_OPT" != "" ]]; then
+        echo "[+] Proxy is in use"
+    fi
+    echo -ne "\n"
+
+    URL_LIST="$(< $URL_LIST)"
+    BLOCKLIST="$(< $BLOCKLIST)"
+
     local TEST=true
     export TEST
     SWCheck
@@ -286,6 +401,7 @@ main() {
         if ping -q -c 3 8.8.8.8 &>/dev/null; then
             clearLines 1
             echo -ne "[+] Internet Connection Available!\n\n"
+
             declare -a PIDS
 
             export PIDS
@@ -295,13 +411,13 @@ main() {
             trap stop EXIT
 
             local CURR_URL=""
-            local ALT_URL="https://www.hdblog.it"
+            local ALT_URL="https://hackernoon.com"
 
             getLock
 
-            for CURR_URL in $(< partyloud.conf); do
+            for CURR_URL in $URL_LIST; do
                 progress "[+] Starting HTTP Engine ($CURR_URL) ... "
-                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" &
+                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${PROXY_OPT}" &
                 PIDS+=("$!")
                 sleep 0.4
                 ALT_URL="${CURR_URL}"
@@ -345,10 +461,6 @@ logo
 
 rm -fr /tmp/partyloud.lock
 
-if [[ "${#}" == 0 ]]; then
-    main
-else
-    DisplayHelp
-fi
+main "${@}"
 
 exit 0
