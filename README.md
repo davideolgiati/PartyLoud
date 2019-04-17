@@ -1,4 +1,4 @@
-# PartyLoud :sound:
+# `PartyLoud` :sound:
 > A simple tool to generate fake web browsing and mitigate tracking
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
@@ -14,9 +14,9 @@ track your real navigation.
 
 This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py")
 
-##### :warning: Currently PartyLoud has been only tested on Debian 9 and Mac OSX 10.14 :warning:
+##### :warning: PartyLoud has been tested only on Debian 9 and Mac OSX 10.14 :warning:
 
-## Table of contents
+## `Table of contents`
 
 * [Changelog](CHANGELOG.md)
 * [Features](#features)
@@ -24,7 +24,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 * [Usage](#usage)
 * [FAQ](#faq)
 
-## Features
+## `Features`
 
 - Configurable urls list (partyloud.conf) and blocklist (badwords)
 - Multi-threaded request engine (number ot thread are equal to number of urls in partyloud.conf)
@@ -32,7 +32,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 - Spoofed User Agent prevent from fingerprinting (Each engine has a different user agent)
 - Dynamic UI
 
-## Setup
+## `Setup`
 
 Clone the repository:
 ```sh
@@ -48,7 +48,7 @@ Run 'partyloud':
 ./partyloud.sh
 ```
 
-## Usage
+## `Usage`
 
 ##### Just run it without any argument
 
@@ -58,7 +58,7 @@ Run 'partyloud':
 
 ##### To stop the script just press enter
 
-## FAQ
+## `FAQ`
 
 <details>
   <summary>Isn't this literally just a cli based frontend to curl?</summary>
