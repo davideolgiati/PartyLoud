@@ -22,7 +22,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 * [Features](#features)
 * [Setup](#setup)
 * [Usage](#usage)
-* [FAQ] (#faq)
+* [FAQ](#faq)
 
 ## Features
 
