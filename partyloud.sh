@@ -235,6 +235,7 @@ SWCheck() {
                   "rm"
                   "mkdir"
                   "printf"
+                  "bc"
                 )
     for COMMAND in "${SW[@]}"; do
         if [[ $TEST == true ]]; then
@@ -305,7 +306,8 @@ Engine() {
             URL="${ALT}"
             ALT="${3}"
         fi
-        sleep 2
+        WORD="$(( RANDOM % 3)).$((RANDOM % 9999999))"
+        sleep "$(echo "$(( RANDOM % 400 + 1)) * $WORD" | bc)"
     done
 }
 
@@ -398,7 +400,7 @@ main() {
     if [[ "$TEST" == true ]]; then
         echo -ne "\n"
         echo -ne "[+] Testing Internet Connection ..."
-        if ping -q -c 3 8.8.8.8 &>/dev/null; then
+        if ping -q -c 3 1.1.1.1 &>/dev/null; then
             clearLines 1
             echo -ne "[+] Internet Connection Available!\n\n"
 
