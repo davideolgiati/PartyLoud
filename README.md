@@ -1,8 +1,9 @@
 # `PartyLoud` :sound:
 > A simple tool to generate fake web browsing and mitigate tracking
 
-[![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)  
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
+[![CodeFactor](https://www.codefactor.io/repository/github/realtho/partyloud/badge)](https://www.codefactor.io/repository/github/realtho/partyloud)  
 
 ![Screenshot](https://i.imgur.com/cn1eEFs.png)
 
