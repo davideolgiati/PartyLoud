@@ -50,8 +50,6 @@ Run 'partyloud':
 
 ## `Usage`
 
-##### Just run it without any argument
-
 ```sh
 Usage: ./partyloud.sh [options...]
 
@@ -62,7 +60,7 @@ Usage: ./partyloud.sh [options...]
 -h --help         dispaly this help
 ```
 
-##### To stop the script just press enter
+##### To stop the script press either enter or CRTL-C
 
 ## `FAQ`
 
