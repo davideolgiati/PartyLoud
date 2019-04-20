@@ -84,3 +84,13 @@ Usage: ./partyloud.sh [options...]
   <summary>How easy is this fake traffic to detect?</summary>
   <p>Unfortunatly it's preatty easy, but keep in mind that this is a beta release and in next releases I'll fix this "issue"</p>
 </details>
+
+<details>
+  <summary>What badwords is doing?</summary>
+  <p>badwords is just a list of keyword used to filter urls in order to prevent 404s and non-html contents (like images, css, js). You can create your own, but, unless you have special needs, I recommend you to use default one or at least to use it as a template</p>
+</details>
+
+<details>
+  <summary>What partyloud.conf is doing?</summary>
+  <p>partyloud.conf is just a list of root urls used to start fake navigation, you can create your own conf file, but pay attention, the more url you add, the more thread you start. This is an "open issue", next releases will come with a max thread number in order to avoid mfsfork bombs (https://www.geeksforgeeks.org/fork-bomb/)</p>
+</details>
