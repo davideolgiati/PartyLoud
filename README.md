@@ -2,7 +2,10 @@
     Partyloud
 </h1>
 
-> Get your privacy back, generate fake web browsing and mitigate tracking
+<p align="center">
+  Get your privacy back<br>
+  Generate fake web browsing and mitigate tracking 
+</p>
 
 [![made-with-bash](https://img.shields.io/badge/Made%20with-Bash-1f425f.svg)](https://www.gnu.org/software/bash/)
 [![CodeFactor](https://www.codefactor.io/repository/github/realtho/partyloud/badge)](https://www.codefactor.io/repository/github/realtho/partyloud)
