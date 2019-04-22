@@ -8,20 +8,22 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/realtho/partyloud/badge)](https://www.codefactor.io/repository/github/realtho/partyloud)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/realtho/PartyLoud.svg)  
 ![GitHub last commit](https://img.shields.io/github/last-commit/realtho/PartyLoud.svg)  
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)  
-
+![GitHub](https://img.shields.io/github/license/realtho/Partyloud.svg)  
+![GitHub stars](https://img.shields.io/github/stars/realtho/PartyLoud.svg?style=social)  
+  
+PartyLoud is a highly configurable and straightforward free tool that help you to prevent tracking directly from linux terminal, no special skills required, once started you can forget it is running. It provides several flags, each flag let you customize you experience and change PartyLoud behaviour according to your needs. 
 
 ![Screenshot](https://i.imgur.com/cn1eEFs.png)
+
+Please [submit bugs and feature requests](https://github.com/realtho/PartyLoud/issues) and help me to continuously improve this project.  
+For questions / feedbacks please contact me [Here](https://www.reddit.com/message/compose/?to=Tho_real)
 
 - **Simple.** 3 files only, no installation required, just clone this repo an you're ready to go.
 - **Powerful.** Thread-based navigation.
 - **Stealthy.** Optimized to emulate user navigation.
 - **Portable.** You can use this script on every unix-based OS.
 
-
 This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py")
-
-##### :warning: PartyLoud has been tested only on Debian 9 and Mac OSX 10.14 :warning:
 
 ## `Contents`
 
