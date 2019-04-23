@@ -1,10 +1,10 @@
 <h1 align="center">
-    Partyloud
+Partyloud
 </h1>
 
 <p align="center">
-  Get your privacy back<br>
-  Generate fake web browsing and mitigate tracking 
+Get your privacy back<br>
+Generate fake web browsing and mitigate tracking 
 </p>
 
 <div align="center">
