@@ -8,6 +8,7 @@
 </p>
 
 <div align="center">
+  <br />
   <!-- made-with-bash -->
   <a href="https://www.gnu.org/software/bash/">
     <img src="https://img.shields.io/badge/Made%20with-Bash-1f425f.svg"
@@ -34,6 +35,7 @@
     <img src="https://img.shields.io/github/license/realtho/Partyloud.svg"
       alt="License" />
   </a>
+  <br />
 </div>
   
 PartyLoud is a highly configurable and straightforward free tool that help you to prevent tracking directly from linux terminal, no special skills required, once started you can forget it is running. It provides several flags, each flag let you customize you experience and change PartyLoud behaviour according to your needs. 
