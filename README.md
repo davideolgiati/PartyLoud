@@ -38,7 +38,10 @@
   <br />
 </div>
   
+<p align="center">
+<br />
 PartyLoud is a highly configurable and straightforward free tool that help you to prevent tracking directly from linux terminal, no special skills required, once started you can forget it is running. It provides several flags, each flag let you customize you experience and change PartyLoud behaviour according to your needs. 
+</p>
 
 ![Screenshot](https://i.imgur.com/cn1eEFs.png)
 
