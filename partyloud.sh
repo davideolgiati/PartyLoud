@@ -51,13 +51,17 @@ EOF
 }
 
 center() {
-    printf "%*s" "$(( (${#1} - $(tput cols)) / 2))" " "
-    echo -ne "$1"
+    local -r Word="${1}"
+    shift
+    printf "%*s" "$(( (${#Word} - $(tput cols)) / 2))" " "
+    echo -ne "${Word}"
 }
 
 clearLines() {
-    for ((x=1; x<="${1}"; x++)); do
-        if [[ "${x}" != "${1}" ]]; then
+    local -r TotalLines="${1}"
+    shift
+    for ((x=1; x<="${TotalLines}"; x++)); do
+        if [[ "${x}" != "${TotalLines}" ]]; then
             tput cuu1
         fi
         tput el1
@@ -75,42 +79,43 @@ progress() {
 }
 
 proxySetup() {
-    local TMP=""
-    local PROTO="$2"
+    local -r Input="${1}"
+    local Tmp=""
+    local Proto="$2"
 
-    if [[ "$1" == http://* ]] ; then
-        PROTO="http"
-        TMP="${1:7}"
-    elif [[ "$1" == https://* ]] ; then
-        PROTO="https"
-        TMP="${1:8}"
+    if [[ "${Input}" == http://* ]] ; then
+        Proto="http"
+        Tmp="${Input:7}"
+    elif [[ "${Input}" == https://* ]] ; then
+        Proto="https"
+        Tmp="${Input:8}"
     else
-        TMP="$1"
+        Tmp="${input}"
     fi
 
-    local IP="${TMP%%:*}"
-    local PORT="${TMP##*:}"
-    local CURL_OPTIONS=""
+    local -r Ip="${Tmp%%:*}"
+    local -r Port="${Tmp##*:}"
+    local CurlOptions=""
 
-    if (echo >/dev/tcp/"${IP}"/"${PORT}") &>/dev/null; then
+    if (echo >/dev/tcp/"${Ip}"/"${Port}") &>/dev/null; then
 
-        if [[ "${PROTO}" == "https" ]]; then
-            CURL_OPTIONS=" --proxy-insecure"
+        if [[ "${Proto}" == "https" ]]; then
+            CurlOptions=" --proxy-insecure"
         fi
 
-        CURL_OPTIONS="${CURL_OPTIONS} --proxy ${PROTO}://${IP}:${PORT}"
+        CurlOptions="${CurlOptions} --proxy ${Proto}://${Ip}:${Port}"
     fi
 
-    echo "${CURL_OPTIONS}"
+    echo "${CurlOptions}"
 }
 
 generateUserAgent() {
-    local -r WIN=( "10.0"  # Win10
+    local -r Win=( "10.0"  # Win10
                    "6.3"   # Win 8.1
                    "6.2"   # Win 8
                    "6.1" ) # Win 7
 
-    local -r MAC=( "10_14" "10_14_1" "10_14_2" "10_14_3"
+    local -r Mac=( "10_14" "10_14_1" "10_14_2" "10_14_3"
                    "10_14_4" "10_14_5" "10_14_6"         # Mojave
                    "10_13" "10_13_1" "10_13_2" "10_13_3"
                    "10_13_4" "10_13_5" "10_13_6"         # High Sierra
@@ -122,25 +127,25 @@ generateUserAgent() {
     local UserAgent="Mozilla/5.0 "
 
     local OS="$(( RANDOM % 3 + 1 ))"
-    local -r bit="$(( RANDOM % 2 ))"
+    local -r Bit="$(( RANDOM % 2 ))"
 
     if [[ "${OS}" == 1 ]]; then
         # Windows
-        OS="${WIN[$(( RANDOM % ${#WIN[@]} ))]}"
-        if [[ "${bit}" == 0 ]]; then
+        os="${Win[$(( RANDOM % ${#Win[@]} ))]}"
+        if [[ "${Bit}" == 0 ]]; then
             # 32bit
-            UserAgent+="(Windows NT $OS"
+            UserAgent+="(Windows NT ${OS}"
         else
             # 64bit
-            UserAgent+="(Windows NT $OS; Win64; x64"
+            UserAgent+="(Windows NT ${OS}; Win64; x64"
         fi
     elif [[ "${OS}" == 2 ]]; then
         # MacOS
-        OS="${MAC[$(( RANDOM % ${#MAC[@]} ))]}"
-        UserAgent+="(Macintosh; Intel Mac OS X $OS"
+        os="${Mac[$(( RANDOM % ${#Mac[@]} ))]}"
+        UserAgent+="(Macintosh; Intel Mac OS X ${OS}"
     else
         # Linux
-        if [[ "${bit}" == 0 ]]; then
+        if [[ "${Bit}" == 0 ]]; then
             # 32bit
             UserAgent+="(X11; Linux i686"
         else
@@ -150,11 +155,11 @@ generateUserAgent() {
     fi
 
     local -r Browser="$(( RANDOM % 2 ))"
-    local VER=""
+    local Ver=""
 
     if [[ "${Browser}" == 1 ]]; then
         # Firefox
-        readonly FF=( "50.0" "50.0.1" "50.0.2" "50.1.0"
+        local -r FF=( "50.0" "50.0.1" "50.0.2" "50.1.0"
                       "51.0" "51.0.1" "51.0.2" "51.0.3"
                       "52.0" "52.0.1" "52.0.2"
                       "53.0" "53.0.1" "53.0.2" "53.0.3"
@@ -171,18 +176,18 @@ generateUserAgent() {
                       "64.0" "64.0.1" "64.0.2"
                       "65.0" "65.0.1" "65.0.2"
                       "66.0" )
-        VER="${FF[$(( RANDOM % ${#FF[@]} ))]}"
-        UserAgent+="; rv:${VER}) Gecko/20100101 Firefox/${VER}"
+        Ver="${FF[$(( RANDOM % ${#FF[@]} ))]}"
+        UserAgent+="; rv:${Ver}) Gecko/20100101 Firefox/${Ver}"
     else
         # Chrome
-        readonly CH=( "56.0.2924" "57.0.2987" "58.0.3029"
+        local -r CH=( "56.0.2924" "57.0.2987" "58.0.3029"
                       "59.0.3071" "60.0.3112" "61.0.3163"
                       "62.0.3202" "63.0.3239" "64.0.3282"
                       "65.0.3325" "66.0.3359" "67.0.3396"
                       "68.0.3440" "69.0.3497" "70.0.3538"
                       "71.0.3578" "72.0.3626" "73.0.3683" )
-        VER="${CH[$(( RANDOM % ${#CH[@]} ))]}"
-        UserAgent+=") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${VER} Safari/537.36"
+        Ver="${CH[$(( RANDOM % ${#CH[@]} ))]}"
+        UserAgent+=") AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${Ver} Safari/537.36"
     fi
 
     echo "${UserAgent}"
@@ -202,23 +207,19 @@ freeLock() {
 stop() {
     for PID in "${PIDS[@]}"; do
         progress "[+] Terminating HTTP Engines ..." "pid: ${PID}"
-        kill -9 "$PID"
-        wait "$PID" 2>/dev/null
+        kill -9 "${PID}"
+        wait "${PID}" 2>/dev/null
     done
 }
 
 filter() {
-    local URLS="${1}"
-    if [[ "$#" == 2 ]]; then
-        URLS="$(grep -iv "${2}" <<< "${URLS}")"
-    else
-        if [[ "${URLS}" != "" ]]; then
-            for FILTER in $BLOCKLIST; do
-                URLS="$(grep -iv "${FILTER}" <<< "${URLS}")"
-            done
-        fi
+    local Urls="${1}"
+    if [[ "${Urls}" != "" ]]; then
+        for FILTER in "${BLOCKLIST}"; do
+            Urls="$(grep -iv "${FILTER}" <<< "${Urls}")"
+        done
     fi
-    echo "${URLS}"
+    echo "${Urls}"
 }
 
 SWCheck() {
@@ -255,74 +256,80 @@ SWCheck() {
 }
 
 Engine() {
-    local URL="${1}"
-    local ALT="${3}"
-    local RES=""
-    local SIZE=0
-    local -r URL_REGEX='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+    sleep "$(( RANDOM % 5 ))"
+    local Url="${1}"
+    local Alt="${3}"
+    local Res=""
+    local Size=0
+    local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
     while true; do
         getLock
-        cmd=( "curl"
-              "--compressed" # Ask to server to compress response
-              "--header" "Accept: text/html" # Filter out everything but hml
-              "--max-time" "60" # Max wait time adjusted to 60s
-              "--location" # Follow redirect
-              "--user-agent" "${2}" # Specify user agent
-              "--write-out" "'%{http_code}'" # Show HTTP response code
-              "${4}" # Proxy options
-              "${URL}" )
-        op=$("${cmd[@]}" 2>&1)
+        local Cmd=( "curl"
+                    "--compressed" # Ask to server to compress response
+                    "--header" "Accept: text/html" # Filter out everything but hml
+                    "--max-time" "60" # Max wait time adjusted to 60s
+                    "--location" # Follow redirect
+                    "--user-agent" "${2}" # Specify user agent
+                    "--write-out" "'%{http_code}'" # Show HTTP response code
+                    "${4}" # Proxy options
+                    "${Url}" )
+        local op=$("${Cmd[@]}" 2>&1)
         if [[ -n $op ]]; then
-            RES="$op"
+            Res="$op"
         else
-            RES=""
+            Res=""
         fi
         freeLock
 
-        echo -ne "[*] ${URL:0:60}"
-        if [[ "${#URL}" -gt 60 ]]; then
+        echo -ne "[*] ${Url:0:60}"
+        if [[ "${#Url}" -gt 60 ]]; then
             echo -ne "... "
             tput cuf 6
         else
-            tput cuf "$(( 70 - ${#URL} ))"
+            tput cuf "$(( 70 - ${#Url} ))"
         fi
 
-        echo " ${RES:(-5)}"
-        if [[ "${RES}" != "" ]] && [[ "${RES:(-5)}" == "'200'" ]]; then
-            RES="$(filter "${RES}" "src")"
-            RES="$(awk -F '"' '{print $2}' <<< "${RES}")"
-            RES="$(grep -Eo "${URL_REGEX}" <<< "${RES}" | sort | uniq)"
-            RES="$(filter "${RES}")"
-            SIZE="$(wc -l <<< "${RES}")"
-            if [[ "${SIZE}" -gt 3 ]]; then
-                ALT="${URL}"
-                NUM="$(( RANDOM % $(( SIZE - 1 )) + 1 ))"
-                URL="$(sed "${NUM}q;d" <<< "${RES}")" # Random Link
+        echo " ${Res:(-5)}"
+        if [[ "${Res}" != "" ]] && [[ "${Res:(-5)}" == "'200'" ]]; then
+            Res="$(awk -F '"' '{print $2}' <<< "${Res}")"
+            Res="$(grep -Eo "${UrlRegex}" <<< "${Res}" | sort | uniq)"
+            Res="$(filter "${Res}")"
+            Size="$(wc -l <<< "${Res}")"
+            if [[ "${Size}" -gt 3 ]]; then
+                Alt="${Url}"
+                Num="$(( RANDOM % $(( Size - 1 )) + 1 ))"
+                Url="$(sed "${Num}q;d" <<< "${Res}")" # Random Link
+                if [[ $WAIT == true ]]; then
+                    Words="0.$(( RANDOM % 9999999 ))"
+                    sleep "$(echo "$(( RANDOM % 160 + 40)) * $Words" | bc)"
+                fi
             else
-                URL="${ALT}"
-                ALT="${3}"
+                Url="${Alt}"
+                Alt="${3}"
             fi
         else
-            URL="${ALT}"
-            ALT="${3}"
+            Url="${Alt}"
+            Alt="${3}"
         fi
-        WORD="$(( RANDOM % 3)).$((RANDOM % 9999999))"
-        sleep "$(echo "$(( RANDOM % 400 + 1)) * $WORD" | bc)"
     done
 }
 
 main() {
-    local URL_LIST="partyloud.conf"
+    local UrlList="partyloud.conf"
     local BLOCKLIST="badwords"
-    local PROXY_OPT=""
+    local ProxyOpt=""
+    local WAIT=true
 
     while [[ "$1" =~ ^- ]]; do
         case "$1" in
+            -n | --no-wait )
+                WAIT=false
+                ;;
             -l | --url-list )
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
                     if [[ -e "$1" ]]; then
-                        URL_LIST="$1"
+                        UrlList="$1"
                     else
                         tput bold
                         echo "[!] a file named \"$1\" does not exist"
@@ -355,7 +362,7 @@ main() {
             -p | --http-proxy )
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
-                    PROXY_OPT="$(proxySetup "$1" "http")"
+                    ProxyOpt="$(proxySetup "$1" "http")"
                 else
                     DisplayHelp
                     exit 1
@@ -364,7 +371,7 @@ main() {
             -s | --https-proxy )
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
-                    PROXY_OPT="$(proxySetup "$1" "https")"
+                    ProxyOpt="$(proxySetup "$1" "https")"
                 else
                     DisplayHelp
                     exit 1
@@ -382,16 +389,17 @@ main() {
         shift
     done
 
+    export WAIT
     export BLOCKLIST
 
-    echo "[+] Using $URL_LIST as URL List"
+    echo "[+] Using $UrlList as URL List"
     echo "[+] Using $BLOCKLIST as Blocklist"
-    if [[ "$PROXY_OPT" != "" ]]; then
+    if [[ "$ProxyOpt" != "" ]]; then
         echo "[+] Proxy is in use"
     fi
     echo -ne "\n"
 
-    URL_LIST="$(< "$URL_LIST")"
+    UrlList="$(< "$UrlList")"
     BLOCKLIST="$(< "$BLOCKLIST")"
 
     local TEST=true
@@ -400,7 +408,7 @@ main() {
     if [[ "$TEST" == true ]]; then
         echo -ne "\n"
         echo -ne "[+] Testing Internet Connection ..."
-        if ping -q -c 3 1.1.1.1 &>/dev/null; then
+        if (echo >/dev/tcp/www.google.com/80) &>/dev/null; then
             clearLines 1
             echo -ne "[+] Internet Connection Available!\n\n"
 
@@ -412,17 +420,22 @@ main() {
             trap stop SIGTERM
             trap stop EXIT
 
-            local CURR_URL=""
-            local ALT_URL="https://hackernoon.com"
+            local CurrentUrl=""
+            local AltUrl="https://hackernoon.com"
+
+            local ThreadCount="0"
 
             getLock
 
-            for CURR_URL in $URL_LIST; do
-                progress "[+] Starting HTTP Engine ($CURR_URL) ... "
-                Engine "${CURR_URL}" "$(generateUserAgent)" "${ALT_URL}" "${PROXY_OPT}" &
-                PIDS+=("$!")
-                sleep 0.4
-                ALT_URL="${CURR_URL}"
+            for CurrentUrl in $UrlList; do
+                if [[ $ThreadCount -lt 10 ]]; then
+                    progress "[+] Starting HTTP Engine ($CurrentUrl) ... "
+                    Engine "${CurrentUrl}" "$(generateUserAgent)" "${AltUrl}" "${ProxyOpt}" &
+                    PIDS+=("$!")
+                    sleep 0.4
+                    AltUrl="${CurrentUrl}"
+                    ThreadCount="$(( ThreadCount + 1))"
+                fi
             done
 
             freeLock
