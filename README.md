@@ -40,7 +40,7 @@ Generate fake web browsing and mitigate tracking
   
 <p align="center">
 <br />
-PartyLoud is a highly configurable and straightforward free tool that help you to prevent tracking directly from linux terminal, no special skills required, once started you can forget it is running. It provides several flags, each flag let you customize you experience and change PartyLoud behaviour according to your needs.
+PartyLoud is a highly configurable and straightforward free tool that helps you prevent tracking directly from your linux terminal, no special skills required. Once started, you can forget it is running. It provides several flags; each flag lets you customize your experience and change PartyLoud behaviour according to your needs.
 <br />
 <img src="https://i.imgur.com/cPO0X1U.png"
       alt="Screenshot" />
@@ -118,30 +118,30 @@ Usage: ./partyloud.sh [options...]
 
 <details>
   <summary>Isn't this literally just a cli based frontend to curl?</summary>
-  <p><br />The core of the script is a curl request, but this tool does more than that. When you run the script, several threads are started. Each thread makes a different Http request and parse the output to choose the next url, simulating a navigation. Unless user stop the script (either pressing enter or via CTRL-C), it will stay alive</p>
+  <p><br />The core of the script is a curl request, but this tool does more than that. When you run the script, several threads are started. Each thread makes a different http request and parses the output to choose the next url, simulating web navigation. Unless the user stops the script (either pressing enter or via CTRL-C), it will stay alive.</p>
 </details>
 
 <details>
-  <summary>How error recovery mechanism works? </summary>
-  <p><br />Error recovery mechanism is an elegant way to say that if the http request return a status code starting with 4 or 5 (error) the script will use a backup-url on order to continue execution normally</p>
+  <summary>How does the error recovery mechanism work? </summary>
+  <p><br />Error recovery mechanism is an elegant way to say that if the http request returns a status code starting with 4 or 5 (error), the script will use a backup-url on order to continue normal execution.</p>
 </details>
 
 <details>
-  <summary>Can I fork your project?</summary>
+  <summary>May I fork your project?</summary>
   <p><br />Look <a href="https://tldrlegal.com/license/gnu-general-public-license-v3-(gpl-3)">Here</a> 😉</p>
 </details>
 
 <details>
   <summary>How easy is this fake traffic to detect?</summary>
-  <p><br />Unfortunatly it's preatty easy, but keep in mind that this is a beta release and in next releases I'll fix this "issue"</p>
+  <p><br />Unfortunately it's pretty easy, but keep in mind that this is a beta and I'll fix this "issue" in upcoming releases.</p>
 </details>
 
 <details>
-  <summary>What badwords is doing?</summary>
-  <p><br />badwords is just a list of keywords used to filter urls in order to prevent 404s and non-html contents (like images, css, js). You can create your own, but, unless you have special needs, I recommend you to use default one or at least to use it as a template</p>
+  <summary>What does badwords do?</summary>
+  <p><br />badwords is just a list of keywords used to filter urls in order to prevent 404s and traversing non-html content (like images, css, js). You can create your own, but, unless you have special needs, I recommend you use the default one or at least use it as a template.</p>
 </details>
 
 <details>
-  <summary>What partyloud.conf is doing?</summary>
-  <p><br />partyloud.conf is just a list of root urls used to start fake navigation, you can create your own conf file, but pay attention, the more url you add, the more thread you start. This is an "open issue", next releases will come with a max thread number in order to avoid <a href="https://www.geeksforgeeks.org/fork-bomb/">Fork Bombs</a></p>
+  <summary>What does partyloud.conf do?</summary>
+  <p><br />partyloud.conf is just a list of root urls used to start the fake navigation. You can create your own conf file, but pay attention that the more urls you add, the more threads you start. This is an "open issue". Upcoming releases will come with a max thread number in order to avoid <a href="https://www.geeksforgeeks.org/fork-bomb/">Fork Bombs</a>.</p>
 </details>
