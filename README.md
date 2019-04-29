@@ -36,6 +36,12 @@ Generate fake web browsing and mitigate tracking
       alt="License" />
   </a>
   <br />
+  <!-- License -->
+  <a href="http://makeapullrequest.com">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"
+      alt="PRs Welcome" />
+  </a>
+  <br />
 </div>
   
 <p align="center">
