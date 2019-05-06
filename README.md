@@ -111,11 +111,17 @@ Run 'partyloud':
 ```sh
 Usage: ./partyloud.sh [options...]
 
--l --url-list     read URL list from specified FILE
--b --blocklist    read blocklist from specified FILE
--p --http-proxy   set a HTTP proxy
--s --https-proxy  set a HTTPS proxy
--h --help         dispaly this help
+-d --dns <file>                    DNS Servers are sourced from specified FILE,
+                                   each request will use a different DNS Server
+                                   in the list
+                                   !!WARNING THIS FEATURE IS EXPERIMENTAL!!
+                                   !!PLEASE LET ME KNOW ISSUES ON GITHUB !!
+-l --url-list <file>               read URL list from specified FILE
+-b --blocklist <file>              read blocklist from specified FILE
+-p --http-proxy <http://ip:port>   set a HTTP proxy
+-s --https-proxy <https://ip:port> set a HTTPS proxy
+-n --no-wait                       disable wait between one request and an other
+-h --help                          dispaly this help
 ```
 
 ##### To stop the script press either enter or CRTL-C
