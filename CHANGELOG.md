@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.0.9] - 2019-05-06
+### :new: Added
+- DNS randomization flag
+- No-Wait (between tow requests) option added
+
+### :white_check_mark: Changed
+- Switched Internet connectivity check from PING to TCP Handshake 
+- Moved all functions in ./src directory
+- Minor fixes
+
 ## [0.0.8] - 2019-04-17
 ### :new: Added
 - HTTP/HTTPS proxy option (Thx to [acbekoac](https://github.com/acbekoac "acbekoac"))
