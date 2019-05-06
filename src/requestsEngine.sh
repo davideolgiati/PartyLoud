@@ -1,4 +1,3 @@
-
 generateUserAgent() {
     local -r Win=( "10.0"  # Win10
                    "6.3"   # Win 8.1
@@ -108,6 +107,7 @@ Engine() {
     local Res=""
     local Size=0
     local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+
     while true; do
         getLock
         local Cmd=( "curl"
@@ -117,8 +117,10 @@ Engine() {
                     "--location" # Follow redirect
                     "--user-agent" "${2}" # Specify user agent
                     "--write-out" "'%{http_code}'" # Show HTTP response code
+                    "$(generateDNSQuery)" # DNS Options
                     "${4}" # Proxy options
                     "${Url}" )
+        #echo "${Cmd[@]}"
         local op=$("${Cmd[@]}" 2>&1)
         if [[ -n $op ]]; then
             Res="$op"
@@ -135,11 +137,12 @@ Engine() {
         fi
 
         echo " ${Res:(-5)}"
+        #echo "${Res}" -- DEBUG
         if [[ "${Res}" != "" ]] && [[ "${Res:(-5)}" == "'200'" ]]; then
             Res="$(awk -F '"' '{print $2}' <<< "${Res}")"
             Res="$(grep -Eo "${UrlRegex}" <<< "${Res}" | sort | uniq)"
             Res="$(filter "${Res}")"
-            Size="$(wc -l <<< "${Res}")"
+            Size="$(echo $(wc -l <<< "${Res}") | cut -d " " -f1)"
             if [[ "${Size}" -gt 3 ]]; then
                 Alt="${Url}"
                 Num="$(( RANDOM % $(( Size - 1 )) + 1 ))"

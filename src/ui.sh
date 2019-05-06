@@ -27,6 +27,8 @@ Usage: ./partyloud.sh [options...]
 -d --dns <file>                    DNS Servers are sourced from specified FILE,
                                    each request will use a different DNS Server
                                    in the list
+                                   !!WARNING THIS FEATURE IS EXPERIMENTAL!!
+                                   !!PLEASE LET ME KNOW ISSUES ON GITHUB !!
 -l --url-list <file>               read URL list from specified FILE
 -b --blocklist <file>              read blocklist from specified FILE
 -p --http-proxy <http://ip:port>   set a HTTP proxy

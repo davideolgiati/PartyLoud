@@ -17,25 +17,16 @@
 source src/proxy.sh # proxySetup()
 source src/ui.sh # logo() DisplayHelp() center() clearLines() progress()
 source src/tools.sh # getLock() freeLock() SWCheck()
+source src/dns.sh # generateDNSQuery()
 source src/requestsEngine.sh # generateUserAgent() stop() filter() Engine()
-
-checkDNSList() {
-    for IP in < "$1"; do
-        if [[ timeout 1 bash -c ">/dev/tcp/1.1.1.1/53" ]]; then
-            validIPs+="$IP"
-            echo "[+] $IP up"
-        else
-            echo "[!] $IP down"
-        fi
-    done
-}
 
 main() {
     local UrlList="partyloud.conf"
     local BLOCKLIST="badwords"
     local ProxyOpt=""
     local WAIT=true
-    local validIPs=();
+    local DNSArray=""
+    local DNSArraySize=0
 
     while [[ "$1" =~ ^- ]]; do
         case "$1" in
@@ -46,8 +37,9 @@ main() {
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
                     if [[ -e "$1" ]]; then
-                        export validIPs
-                        checkDNSList "$1"
+                        DNSArray="$1"
+                        DNSArraySize="$(echo $(wc -l "$DNSArray") | cut -d " " -f1)"
+                        echo "[+] Using $1 as DNS Server list"
                     else
                         tput bold
                         echo "[!] a file named \"$1\" does not exist"
@@ -126,6 +118,8 @@ main() {
 
     export WAIT
     export BLOCKLIST
+    export DNSList
+    export DNSArraySize
 
     echo "[+] Using $UrlList as URL List"
     echo "[+] Using $BLOCKLIST as Blocklist"
