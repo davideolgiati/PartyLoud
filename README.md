@@ -69,6 +69,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 * [Features](#features)
 * [Setup](#setup)
 * [Usage](#usage)
+* [File Specifications](#filespecifications)
 * [FAQ](#faq)
 
 ## ⚙️ `How It Works`
@@ -85,6 +86,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 ## 🚀 `Features`
 
 - Configurable urls list and blocklist
+- Random DNS Mode : each request is done on a different DNS Server
 - Multi-threaded request engine (# of thread are equal to # of urls in partyloud.conf)
 - Error recovery mechanism to protect Engines from failures
 - Spoofed User Agent prevent from fingerprinting (each engine has a different user agent)
@@ -126,6 +128,53 @@ Usage: ./partyloud.sh [options...]
 
 ##### To stop the script press either enter or CRTL-C
 
+##  ⚠️ `File Specifications`
+
+<p align="center">
+<b>In current release there is no input-validation on files.</b><br />
+If you find bugs or have suggestions on how to improve this features please help me  by opening issues on GitHub <br />
+<br />
+</p>
+
+### Intro
+
+###### If you don’t have special needs , default config files are just fine to get you started.  
+  
+Default files are located in:
+
+* [badwords](badwords)
+* [partyloud.conf](partyloud.conf)
+* [DNSList](DNSList)
+
+Please note that file name and extension are not important, just content of files matter  
+  
+#### [badwords](badwords) - Keywords-based blocklist
+  
+[badwords](badwords) is a keywords-based blocklist used to filter non-HTML content, images, document and so on.  
+The default config as been created after several weeks of testing. If you really think you need a custom blocklist, my suggestion is to start by copy and modifying default config according to your needs.  
+Here are some hints on how to create a great blocklist file:
+  
+| DO ✅ | DONT 🚫 |
+| ------------- | ------------- |
+| Use only ASCII chars  | Define one-site-only rules |
+| Try to keep the rules as general as possible | Define case-sensitive rules |
+| Prefer relative path | Place more than one rule per line |
+  
+#### [partyloud.conf](partyloud.conf) - ULR List
+  
+[partyloud.conf](partyloud.conf) is a ULR List used as starting point for fake navigation generators.  
+The goal here is to create a good list of sites containing a lot of URLs.  
+Aside suggesting you not to use google, youtube and social networks related links, I've really no hints for you.  
+###### Note #1 - To work properly the URLs must be [well-formed](https://earthsci.stanford.edu/computing/hosting/urlsyntax/index.php)  
+###### Note #2 - Even if the file contains 1000 lines only 10 are used (first 10, working on randomness)  
+###### Note #3 - Only one URL per line is allowed
+  
+#### [DNSList](DNSList) - DNS List
+  
+[DNSList](DNSList) is a List of DNS used as argument for random DNS feature. Random DNS is not enable by default, so the “default file” is really just a guide line and a test used while developing the function to se if everything was working as expected.   
+The only suggestion here is to add as much address as possible to increase randomness.  
+###### Note #1 - Only one address per line is allowed
+  
 ## 📖 `FAQ`
 
 <details>
