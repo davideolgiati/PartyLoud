@@ -52,8 +52,11 @@ PartyLoud is a highly configurable and straightforward free tool that helps you 
       alt="Screenshot" />
 </p>
 
-Please [submit bugs and feature requests](https://github.com/realtho/PartyLoud/issues) and help me to continuously improve this project.  
-For questions / feedbacks please contact me [Here](https://www.reddit.com/message/compose/?to=Tho_real)
+<p align="center">
+<b>Please <a href="https://github.com/realtho/PartyLoud/issues">submit bugs and feature requests</a> and help me to continuously improve this project.</b><br />
+For questions / feedbacks please contact me <a href="https://www.reddit.com/message/compose/?to=Tho_real">Here</a><br />
+<br />
+</p>  
 
 - **Simple.** 3 files only, no installation required, just clone this repo an you're ready to go.
 - **Powerful.** Thread-based navigation.
@@ -62,15 +65,7 @@ For questions / feedbacks please contact me [Here](https://www.reddit.com/messag
 
 This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py")
 
-## `Contents`
-
-* [Changelog](CHANGELOG.md)
-* [How It Works](#howitworks)
-* [Features](#features)
-* [Setup](#setup)
-* [Usage](#usage)
-* [File Specifications](#Filespecifications)  
-* [FAQ](#faq)
+### [📝 Changelog](CHANGELOG.md)
 
 ## ⚙️ `How It Works`
 
