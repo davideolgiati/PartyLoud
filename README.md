@@ -54,7 +54,7 @@ PartyLoud is a highly configurable and straightforward free tool that helps you 
 
 <p align="center">
 <b>Please <a href="https://github.com/realtho/PartyLoud/issues">submit bugs and feature requests</a> and help me to continuously improve this project.</b><br />
-For questions / feedbacks please contact me <a href="https://www.reddit.com/message/compose/?to=Tho_real">Here</a><br />
+For questions / feedbacks please contact me <a href="https://twitter.com/realTHO2">Here</a><br />
 <br />
 </p>  
 
