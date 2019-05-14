@@ -1,3 +1,12 @@
+checkURL(){ # VERY ALPHA
+    local -r URLToTest="${1}"
+    if [[ ${URLToTest} =~ ^(http:\/\/|https:\/\/)([a-z0-9]{1,20}\.){1,2}[a-z]{2,5}(:(80|443))?(\/[a-z0-9]{1,20}){0,10}(\/[a-z0-9]{0,20}(\.html)?)?$ ]]; then
+        echo "${URLToTest}"
+    else
+        echo ""
+    fi
+}
+
 generateUserAgent() {
     local -r Win=( "10.0"  # Win10
                    "6.3"   # Win 8.1

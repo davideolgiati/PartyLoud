@@ -1,10 +1,18 @@
-checkDNS() {
-    local -r IP="$1"
-    if (timeout 0.3 echo >/dev/udp/"${IP}"/53 2>&1); then
-        echo 1
-    else
+IPCheck() {
+    if [[ "${1}" =~ ^(22[0-3]|2[0-1][0-9]|[01]?([0-9][0-9]|[1-9])\.)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){2}(25[0-4]|2[0-4][0-9]|[01]?([0-9][0-9]|[1-9]))$ ]]; then
         echo 0
+    else
+        echo 1
     fi
+}
+
+checkDNS() {
+    local -r out=()
+    for i in ${1}; do
+        if [[ IPCheck "${i}" -eq 0 ]]; then
+            out+="${i}"
+        fi
+    done
 }
 
 queryDNS(){
