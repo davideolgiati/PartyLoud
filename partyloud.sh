@@ -90,6 +90,10 @@ main() {
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
                     ProxyOpt="$(proxySetup "$1" "http")"
+                    proxyResponseHandler "$ProxyOpt"
+                    if [[ "${#ProxyOpt}" == 1 ]]; then
+                        $ProxyOpt=""
+                    fi
                 else
                     DisplayHelp
                     exit 1
@@ -99,6 +103,10 @@ main() {
                 shift
                 if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
                     ProxyOpt="$(proxySetup "$1" "https")"
+                    proxyResponseHandler "$ProxyOpt"
+                    if [[ "${#ProxyOpt}" == 1 ]]; then
+                        $ProxyOpt=""
+                    fi
                 else
                     DisplayHelp
                     exit 1
