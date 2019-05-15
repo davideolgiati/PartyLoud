@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-source src/proxy.sh # proxySetup()
+source src/proxy.sh # proxySetup() proxyResponseHandler()
 source src/ui.sh # logo() DisplayHelp() center() clearLines() progress()
 source src/tools.sh # getLock() freeLock() SWCheck()
 source src/dns.sh # generateDNSQuery()
@@ -92,7 +92,7 @@ main() {
                     ProxyOpt="$(proxySetup "$1" "http")"
                     proxyResponseHandler "$ProxyOpt"
                     if [[ "${#ProxyOpt}" == 1 ]]; then
-                        $ProxyOpt=""
+                        ProxyOpt=""
                     fi
                 else
                     DisplayHelp
@@ -105,7 +105,7 @@ main() {
                     ProxyOpt="$(proxySetup "$1" "https")"
                     proxyResponseHandler "$ProxyOpt"
                     if [[ "${#ProxyOpt}" == 1 ]]; then
-                        $ProxyOpt=""
+                        ProxyOpt=""
                     fi
                 else
                     DisplayHelp
