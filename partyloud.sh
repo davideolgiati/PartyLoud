@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-source src/proxy.sh # proxySetup() proxyResponseHandler()
-source src/ui.sh # logo() DisplayHelp() center() clearLines() progress()
-source src/tools.sh # getLock() freeLock() SWCheck()
-source src/dns.sh # generateDNSQuery()
-source src/requestsEngine.sh # generateUserAgent() stop() filter() Engine()
+. ./src/dns.sh # generateDNSQuery()
+. ./src/proxy.sh # proxySetup() proxyResponseHandler()
+. ./src/ui.sh # logo() DisplayHelp() center() clearLines() progress()
+. ./src/tools.sh # getLock() freeLock() SWCheck()
+. ./src/requestsEngine.sh # generateUserAgent() stop() filter() Engine()
 
 main() {
     local UrlList="partyloud.conf"
@@ -175,8 +175,6 @@ main() {
                 fi
             done
 
-            freeLock
-
             clearLines 1
             tput bold
             echo -ne "[+] HTTP Engines Started!\n"
@@ -189,6 +187,7 @@ main() {
             tput sgr0
 
             echo -ne "\n\n\n"
+            freeLock
             read -r _
 
             stop

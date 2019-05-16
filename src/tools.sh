@@ -25,16 +25,24 @@ SWCheck() {
                   "printf"
                   "bc"
                 )
-    for COMMAND in "${SW[@]}"; do
+    local Command=""
+    local Offset=""
+    for Command in "${SW[@]}"; do
         if [[ $TEST == true ]]; then
-            if [[ $(command -v "$COMMAND") ]]; then
+            if [[ $(command -v "$Command") ]]; then
                 tput bold
-                echo "[+] $COMMAND Found!"
+                echo -ne "[+] $Command "
+                Offset="$(( 10 - ${#Command} ))"
+                tput cuf "$Offset"
+                echo "Found!"
                 tput sgr0
             else
                 tput bold
                 tput setaf 1
-                echo "[!] $COMMAND not Found!!"
+                echo -ne "[+] $Command "
+                Offset="$(( 10 - ${#Command} ))"
+                tput cuf "$Offset"
+                echo "Found!"
                 tput sgr0
                 TEST=false
             fi

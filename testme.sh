@@ -27,47 +27,37 @@ testProxy() {
     local expected=""
     local desc=""
 
-    # --- [ !!! ] ---
-    # I know 1.1.1.1:53 is not a proxy but,
-    # 1) it's always up
-    # 2) proxySetup() do not check if there's a proxy running
-    #    on the specified IP:Port
-    # 3) any valid and active IP:Port conbination is fine
-    # If you know a valid repalacement for 1.1.1.1:53,
-    # please let me know on GitHub or Twitter
-    # --- [ !!! ] ---
-
     # HTTPS Test
     # With Flag
-    result="$(proxySetup "https://1.1.1.1:53" "https")"
-    expected=" --proxy-insecure --proxy https://1.1.1.1:53"
+    result="$(proxySetup "https://127.0.0.1:1234" "https")"
+    expected=" --proxy-insecure --proxy https://127.0.0.1:1234"
     desc="HTTPS Proxy (with flag) Test"
     assertEquals "$desc" "$expected" "$result"
 
     # HTTP Test
     # With Flag
-    result="$(proxySetup "http://1.1.1.1:53" "http")"
-    expected=" --proxy http://1.1.1.1:53"
+    result="$(proxySetup "http://127.0.0.1:1235" "http")"
+    expected=" --proxy http://127.0.0.1:1235"
     desc="HTTP Proxy (with flag) Test"
     assertEquals "$desc" "$expected" "$result"
 
     # HTTPS Test
     # Missing Flag
-    result="$(proxySetup "https://1.1.1.1:53")"
+    result="$(proxySetup "https://127.0.0.1:1234")"
     expected="3"
     desc="HTTPS Proxy (Missing flag) Test"
     assertEquals "$desc" "$expected" "$result"
 
     # HTTPS Test
     # With Missing Proto
-    result="$(proxySetup "1.1.1.1:53" "https")"
+    result="$(proxySetup "127.0.0.1:1234" "https")"
     expected="2"
     desc="HTTPS Proxy (with malformed flag) Test"
     assertEquals "$desc"  "$expected" "$result"
 
     # HTTPS Test
     # With fake Server
-    result="$(proxySetup "https://1.1.1.1:65535" "https")"
+    result="$(proxySetup "https://127.0.0.1:1233" "https")"
     expected="1"
     desc="HTTPS Proxy (with malformed flag) Test"
     assertEquals "$desc"  "$expected" "$result"
@@ -82,7 +72,7 @@ testProxyMessages() {
 
     # ProxySetup Test
     # OK
-    result="$(proxyResponseHandler " --proxy-insecure --proxy https://1.1.1.1:53")"
+    result="$(proxyResponseHandler " --proxy-insecure --proxy https://127.0.0.1:1234")"
     expected="[+] ProxySetup Worked Fine"
     desc="ProxySetup OK Test"
     assertEquals "$desc" "$expected" "$result"
@@ -112,17 +102,157 @@ testProxyMessages() {
     # Basic Condition Coverage: 100%
 }
 
-#startServer() {
-#    local -r Port="${1}"
-#    nc -l "${Port}" &
-#    echo "$!"
-#}
+source src/dns.sh
+
+testRegexIP() {
+    local result=""
+    local expected=""
+    local desc=""
+
+    # CLASS A ADDRESSES
+    # Boundary-driven testing
+    # L-1 :  0.0.0.0
+    # L   :  1.0.0.1
+    # M   :  10.0.0.1
+    # U   :  127.255.255.254
+    # U+1 :  127.255.255.255
+
+    # L-1
+    result="$(IPCheck "0.0.0.0")"
+    expected="1"
+    desc="CLASS A IP Test -- L-1 : 0.0.0.0"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L
+    result="$(IPCheck "1.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- L : 1.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # M
+    result="$(IPCheck "10.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- M : 10.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # U
+    result="$(IPCheck "127.255.255.254")"
+    expected="0"
+    desc="CLASS A IP Test -- U : 127.255.255.254"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L-1
+    result="$(IPCheck "127.255.255.255")"
+    expected="1"
+    desc="CLASS A IP Test -- U+1 : 127.255.255.255"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CLASS B ADDRESSES
+    # Boundary-driven testing
+    # L-1 :  128.0.0.0
+    # L   :  128.0.0.1
+    # M   :  130.0.0.1
+    # U   :  191.255.255.254
+    # U+1 :  191.255.255.255
+
+    # L-1
+    result="$(IPCheck "128.0.0.0")"
+    expected="1"
+    desc="CLASS A IP Test -- L-1 : 128.0.0.0"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L
+    result="$(IPCheck "128.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- L : 128.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # M
+    result="$(IPCheck "10.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- M : 130.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # U
+    result="$(IPCheck "191.255.255.254")"
+    expected="0"
+    desc="CLASS A IP Test -- U : 191.255.255.255"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L-1
+    result="$(IPCheck "191.255.255.255")"
+    expected="1"
+    desc="CLASS A IP Test -- U+1 : 191.255.255.255"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CLASS C ADDRESSES
+    # Boundary-driven testing
+    # L-1 :  192.0.0.0
+    # L   :  192.0.0.1
+    # M   :  200.0.0.1
+    # U   :  223.255.255.254
+    # U+1 :  223.255.255.255
+
+    # L-1
+    result="$(IPCheck "192.0.0.0")"
+    expected="1"
+    desc="CLASS A IP Test -- L-1 : 192.0.0.0"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L
+    result="$(IPCheck "192.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- L : 192.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # M
+    result="$(IPCheck "200.0.0.1")"
+    expected="0"
+    desc="CLASS A IP Test -- M : 200.0.0.1"
+    assertEquals "$desc" "$expected" "$result"
+
+    # U
+    result="$(IPCheck "223.255.255.254")"
+    expected="0"
+    desc="CLASS A IP Test -- U : 223.255.255.254"
+    assertEquals "$desc" "$expected" "$result"
+
+    # L-1
+    result="$(IPCheck "223.255.255.255")"
+    expected="1"
+    desc="CLASS A IP Test -- U+1 : 223.255.255.255"
+    assertEquals "$desc" "$expected" "$result"
+}
+
+testDNSCheck() {
+    local result=""
+    local expected=""
+    local desc=""
+
+    # CheckDNS Base Test
+    result="$(checkDNS "127.0.0.1")"
+    expected="127.0.0.1"
+    desc="checkDNS Base Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS NotAnIP Test
+    result="$(checkDNS "NotAnIP")"
+    expected=""
+    desc="checkDNS NotAnIP Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # Basic Condition Coverage: 100%
+}
 
 clear
 logo
 
 # TODO - ADD shUnit2 SETUP
 
-# readonly PID="$(startServer "1234")"
+(nc -l 1234 &>/dev/null) & # HTTPS Proxy
+readonly PID1="$!"
+(nc -l 1235 &>/dev/null) & # HTTP Proxy
+readonly PID2="$!"
 . ./.shunit2/shunit2
-# kill -9 "${PID}"
+kill -9 "${PID1}"
+kill -9 "${PID2}"

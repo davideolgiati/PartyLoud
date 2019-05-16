@@ -1,5 +1,5 @@
 IPCheck() {
-    if [[ "${1}" =~ ^(22[0-3]|2[0-1][0-9]|[01]?([0-9][0-9]|[1-9])\.)((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){2}(25[0-4]|2[0-4][0-9]|[01]?([0-9][0-9]|[1-9]))$ ]]; then
+    if [[ "${1}" =~ ^(22[0-3]|2[0-1][0-9]|[01]?([0-9][0-9]|[1-9]))\.((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){2}(25[0-4]|2[0-4][0-9]|[01]?([0-9][0-9]|[1-9]))$ ]]; then
         echo 0
     else
         echo 1
@@ -7,15 +7,15 @@ IPCheck() {
 }
 
 checkDNS() {
-    local -r out=()
-    for i in ${1}; do
-        if [[ IPCheck "${i}" -eq 0 ]]; then
-            out+="${i}"
-        fi
-    done
+    local -r IP="${1}"; shift
+    local out=""
+    if [[ "$(IPCheck "${IP}")" -eq 0 ]] && (echo >/dev/tcp/"${IP}"/53) &>/dev/null; then
+        out="${IP}"
+    fi
+    echo "${out}"
 }
 
-queryDNS(){
+queryDNS() {
     local Uri="$1"
     local Dns=""
     local Entry=""
@@ -45,10 +45,10 @@ generateDNSQuery() {
         local fsUri="$1"
         local Port=""
 
-        if [[ "${Uri}" == http://* ]] ; then
+        if [[ "${Uri}" == http://* ]]; then
             Port="80"
             Uri="${Uri:7}"
-        elif [[ "${Uri}" == https://* ]] ; then
+        elif [[ "${Uri}" == https://* ]]; then
             Port="443"
             Uri="${Uri:8}"
         fi
@@ -65,5 +65,4 @@ generateDNSQuery() {
 
         echo "$Out"
     fi
-
 }

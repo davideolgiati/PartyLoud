@@ -1,4 +1,6 @@
-checkURL(){ # VERY ALPHA
+#! /bin/bash
+
+checkURL() { # VERY ALPHA
     local -r URLToTest="${1}"
     if [[ ${URLToTest} =~ ^(http:\/\/|https:\/\/)([a-z0-9]{1,20}\.){1,2}[a-z]{2,5}(:(80|443))?(\/[a-z0-9]{1,20}){0,10}(\/[a-z0-9]{0,20}(\.html)?)?$ ]]; then
         echo "${URLToTest}"
@@ -116,9 +118,11 @@ Engine() {
     local Res=""
     local Size=0
     local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+    local DNSQuery=""
 
     while true; do
         getLock
+        DNSQuery="$(generateDNSQuery "")"
         local Cmd=( "curl"
                     "--compressed" # Ask to server to compress response
                     "--header" "Accept: text/html" # Filter out everything but hml
@@ -126,7 +130,7 @@ Engine() {
                     "--location" # Follow redirect
                     "--user-agent" "${2}" # Specify user agent
                     "--write-out" "'%{http_code}'" # Show HTTP response code
-                    "$(generateDNSQuery)" # DNS Options
+                    "$DNSQuery" # DNS Options
                     "${4}" # Proxy options
                     "${Url}" )
         #echo "${Cmd[@]}"
