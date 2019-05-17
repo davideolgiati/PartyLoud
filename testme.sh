@@ -241,6 +241,26 @@ testDNSCheck() {
     desc="checkDNS NotAnIP Test"
     assertEquals "$desc" "$expected" "$result"
 
+    # CheckDNS NotAnIP Test
+    result="$(checkDNS "93.184.216.34")" # www.example.com
+    expected=""
+    desc="checkDNS NotAnIP Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # Basic Condition Coverage: 100%
+}
+
+testqueryDNS() {
+    local result=""
+    local expected=""
+    local desc=""
+
+    # CheckDNS Base Test
+    result="$(queryDNS "www.example.com" "1.1.1.1")"
+    expected="93.184.216.34"
+    desc="queryDNS Base Test"
+    assertEquals "$desc" "$expected" "$result"
+
     # Basic Condition Coverage: 100%
 }
 
@@ -253,6 +273,9 @@ logo
 readonly PID1="$!"
 (nc -l 1235 &>/dev/null) & # HTTP Proxy
 readonly PID2="$!"
+(nc -l 53 &>/dev/null) & # DNS
+readonly PID3="$!"
 . ./.shunit2/shunit2
 kill -9 "${PID1}"
 kill -9 "${PID2}"
+kill -9 "${PID3}"

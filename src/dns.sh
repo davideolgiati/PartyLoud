@@ -9,29 +9,20 @@ IPCheck() {
 checkDNS() {
     local -r IP="${1}"; shift
     local out=""
-    if [[ "$(IPCheck "${IP}")" -eq 0 ]] && (echo >/dev/tcp/"${IP}"/53) &>/dev/null; then
+    if [[ "$(IPCheck "${IP}")" -eq 0 ]] && (timeout 0.5 echo >/dev/tcp/"${IP}"/53) &>/dev/null; then
         out="${IP}"
     fi
     echo "${out}"
 }
 
 queryDNS() {
-    local Uri="$1"
-    local Dns=""
-    local Entry=""
+    local -r Uri="${1}"; shift
+    local -r Dns="${1}"; shift
     local Out=""
-    local Retry=0
 
-    while [[ $(checkDNS "$Dns") -eq 0 ]] && [[ Retry < 5 ]]; do
-        Entry="$(( RANDOM % DNSArraySize ))"
-        Dns="$(sed "${Entry}q;d" "$DNSArray")"
+    if [[ "$(checkDNS "$Dns")" != "" ]]; then
         Out="$(timeout 0.5 host ${Uri} ${Dns})"
-        Out="$(grep "has address" <<< ${Out} | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}")"
-        Retry="$(( Retry + 1 ))"
-    done
-
-    if [[ $Retry > 4 ]]; then
-        Out=""
+        Out="$(grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" <<< ${Out} | grep -v "${Dns}")"
     fi
 
     echo "$Out"
