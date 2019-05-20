@@ -261,6 +261,62 @@ testqueryDNS() {
     desc="queryDNS Base Test"
     assertEquals "$desc" "$expected" "$result"
 
+    # CheckDNS invalid URL Test
+    result="$(queryDNS "www.example---.com" "1.1.1.1")"
+    expected=""
+    desc="queryDNS invalid URL Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS Wrong DNS Test
+    result="$(queryDNS "www.example.com" "0.0.0.0")"
+    expected=""
+    desc="queryDNS Wrong DNS Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # Basic Condition Coverage: 100%
+}
+
+testgenerateDNSquery() {
+    local result=""
+    local expected=""
+    local desc=""
+
+    # CheckDNS Base Test
+    result="$(generateDNSQuery "https://www.example.com" "1.1.1.1")"
+    expected="--resolve www.example.com:443:93.184.216.34"
+    desc="generateDNSquery Base Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS HTTP Test
+    result="$(generateDNSQuery "http://www.example.com" "1.1.1.1")"
+    expected="--resolve www.example.com:80:93.184.216.34"
+    desc="generateDNSquery HTTP Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS Wrong DNS Test
+    result="$(generateDNSQuery "https://www.example.com" "0.0.0.0")"
+    expected=""
+    desc="generateDNSquery Wrong DNS Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS No DNS Test
+    result="$(generateDNSQuery "https://www.example.com" "")"
+    expected=""
+    desc="generateDNSquery No DNS Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS Wrong URL Test
+    result="$(generateDNSQuery "https://www.example---.com" "1.1.1.1")"
+    expected=""
+    desc="generateDNSquery Wrong URL Test"
+    assertEquals "$desc" "$expected" "$result"
+
+    # CheckDNS No Protocol URL Test
+    result="$(generateDNSQuery "www.example.com" "1.1.1.1")"
+    expected=""
+    desc="generateDNSquery No Protocol URL Test"
+    assertEquals "$desc" "$expected" "$result"
+
     # Basic Condition Coverage: 100%
 }
 

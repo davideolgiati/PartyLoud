@@ -29,13 +29,13 @@ queryDNS() {
 }
 
 generateDNSQuery() {
-    if [[ "$DNSArray" == "" ]]; then
+    local Uri="${1}"; shift
+    local Dns="${1}"; shift
+    local Out="--resolve "
+    local Port=""
+    if [[ "$Dns" == "" ]]; then
         echo ""
     else
-        local Out="--resolve "
-        local fsUri="$1"
-        local Port=""
-
         if [[ "${Uri}" == http://* ]]; then
             Port="80"
             Uri="${Uri:7}"
@@ -46,7 +46,7 @@ generateDNSQuery() {
 
         Uri="${Uri%%/*}"
 
-        local Ip="$(queryDNS ${Uri})"
+        local -r Ip="$(queryDNS "${Uri}" "${Dns}")"
 
         if [[ "${Ip}" != "" ]] && [[ "${Port}" != "" ]]; then
             Out+="${Uri}:${Port}:${Ip}"

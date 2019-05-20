@@ -113,8 +113,8 @@ filter() {
 
 Engine() {
     sleep "$(( RANDOM % 5 ))"
-    local Url="${1}"
-    local Alt="${3}"
+    local Url="${1}" # Main URL
+    local Alt="${3}" # Alternate URL
     local Res=""
     local Size=0
     local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
@@ -122,16 +122,16 @@ Engine() {
 
     while true; do
         getLock
-        DNSQuery="$(generateDNSQuery "")"
+        DNSQuery="$(generateDNSQuery "${Url}" "${DNS}")"
         local Cmd=( "curl"
-                    "--compressed" # Ask to server to compress response
-                    "--header" "Accept: text/html" # Filter out everything but hml
-                    "--max-time" "60" # Max wait time adjusted to 60s
-                    "--location" # Follow redirect
-                    "--user-agent" "${2}" # Specify user agent
+                    "--compressed"                 # Ask to server to compress response
+                    "--header" "Accept: text/html" # Filter out everything but html
+                    "--max-time" "60"              # Max wait time adjusted to 60s
+                    "--location"                   # Follow redirect
+                    "--user-agent" "${2}"          # Specify user agent
                     "--write-out" "'%{http_code}'" # Show HTTP response code
-                    "$DNSQuery" # DNS Options
-                    "${4}" # Proxy options
+                    "$DNSQuery"                    # DNS Options
+                    "${4}"                         # Proxy options
                     "${Url}" )
         #echo "${Cmd[@]}"
         local op=$("${Cmd[@]}" 2>&1)
