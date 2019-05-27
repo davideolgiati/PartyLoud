@@ -7,9 +7,9 @@ proxySetup() {
 
         if [[ "${Input}" == "${Proto}"://* ]]; then
             if [[ "${Proto}" == "http" ]] ; then
-                Tmp="${Input:7}"
+                Tmp="$(subStrFrom "${Input}" 7)"
             else
-                Tmp="${Input:8}"
+                Tmp="$(subStrFrom "${Input}" 8)"
             fi
 
             local -r Ip="${Tmp%%:*}"

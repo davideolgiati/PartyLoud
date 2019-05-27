@@ -8,6 +8,36 @@ freeLock() {
     rm -fr /tmp/partyloud.lock
 }
 
+isNotEmptyString() {
+    local -r in="${1}"; shift
+
+    [[ "${in}" != "" ]]
+}
+
+isEmptyString() {
+    local -r in="${1}"; shift
+
+    [[ "${in}" == "" ]]
+}
+
+isHttp() {
+    local -r in="${1}"; shift
+
+    [[ "${in}" == http://* ]]
+}
+
+isHttps() {
+    local -r in="${1}"; shift
+
+    [[ "${in}" == https://* ]]
+}
+
+subStrFrom() {
+    local -r in="${1}"; shift
+    local -r pos="${1}"; shift
+
+    echo "${in:$pos}"
+}
 
 SWCheck() {
     local -r SW=( "echo"

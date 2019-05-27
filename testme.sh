@@ -103,6 +103,7 @@ testProxyMessages() {
 }
 
 source src/dns.sh
+source src/tools.sh
 
 testRegexIP() {
     local result=""

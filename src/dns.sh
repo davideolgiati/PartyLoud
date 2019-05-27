@@ -1,5 +1,7 @@
 IPCheck() {
-    if [[ "${1}" =~ ^(22[0-3]|2[0-1][0-9]|[01]?([0-9][0-9]|[1-9]))\.((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){2}(25[0-4]|2[0-4][0-9]|[01]?([0-9][0-9]|[1-9]))$ ]]; then
+    local -r in="${1}"; shift
+
+    if [[ "${in}" =~ ^(22[0-3]|2[0-1][0-9]|[01]?([0-9][0-9]|[1-9]))\.((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){2}(25[0-4]|2[0-4][0-9]|[01]?([0-9][0-9]|[1-9]))$ ]]; then
         echo 0
     else
         echo 1
@@ -7,53 +9,68 @@ IPCheck() {
 }
 
 checkDNS() {
-    local -r IP="${1}"; shift
+    local -r ip="${1}"; shift
     local out=""
-    if [[ "$(IPCheck "${IP}")" -eq 0 ]] && (timeout 0.5 echo >/dev/tcp/"${IP}"/53) &>/dev/null; then
-        out="${IP}"
+    if [[ "$(IPCheck "${ip}")" -eq 0 ]] && (timeout 0.5 echo >/dev/tcp/"${ip}"/53) &>/dev/null; then
+        out="${ip}"
     fi
     echo "${out}"
 }
 
-queryDNS() {
-    local -r Uri="${1}"; shift
-    local -r Dns="${1}"; shift
-    local Out=""
+requestIP() {
+    local -r url="${1}"; shift
+    local -r dns="${1}"; shift
 
-    if [[ "$(checkDNS "$Dns")" != "" ]]; then
-        Out="$(timeout 0.5 host ${Uri} ${Dns})"
-        Out="$(grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" <<< ${Out} | grep -v "${Dns}")"
+    timeout 0.5 host "${url}" "${dns}"
+}
+
+filterIP() {
+    local -r in="${1}"; shift
+    local -r dns="${1}"; shift
+
+    grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" <<< "${in}" | # Taking only IP-like text
+        grep -v "${dns}"                                     # Removing DNS IP
+}
+
+queryDNS() {
+    local -r url="${1}"; shift
+    local -r dns="${1}"; shift
+    local out=""
+
+    if isNotEmptyString "$(checkDNS "${dns}")"; then
+        out="$(requestIP ${url} ${dns})"
+        out="$(filterIP "${out}" "${dns}")"
     fi
 
-    echo "$Out"
+    echo "${out}"
 }
 
 generateDNSQuery() {
-    local Uri="${1}"; shift
-    local Dns="${1}"; shift
-    local Out="--resolve "
-    local Port=""
-    if [[ "$Dns" == "" ]]; then
+    local uri="${1}"; shift
+    local dns="${1}"; shift
+    local out="--resolve "
+    local port=""
+    if isEmptyString "${dns}"; then
         echo ""
     else
-        if [[ "${Uri}" == http://* ]]; then
-            Port="80"
-            Uri="${Uri:7}"
-        elif [[ "${Uri}" == https://* ]]; then
-            Port="443"
-            Uri="${Uri:8}"
+        if isHttp "${uri}"; then
+            port="80"
+            uri="$(subStrFrom "${uri}" 7)"
+        elif isHttps "${uri}"; then
+            port="443"
+            uri="$(subStrFrom "${uri}" 8)"
         fi
 
-        Uri="${Uri%%/*}"
+        uri="${uri%%/*}"
 
-        local -r Ip="$(queryDNS "${Uri}" "${Dns}")"
+        local -r ip="$(queryDNS "${uri}" "${dns}")"
 
-        if [[ "${Ip}" != "" ]] && [[ "${Port}" != "" ]]; then
-            Out+="${Uri}:${Port}:${Ip}"
+        if isNotEmptyString "${ip}" && isNotEmptyString "${port}"; then
+            out+="${uri}:${port}:${ip}"
         else
-            Out=""
+            out=""
         fi
 
-        echo "$Out"
+        echo "${out}"
     fi
 }

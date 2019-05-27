@@ -113,66 +113,131 @@ filter() {
 
 Engine() {
     sleep "$(( RANDOM % 5 ))"
-    local Url="${1}" # Main URL
-    local Alt="${3}" # Alternate URL
-    local Res=""
-    local Size=0
-    local -r UrlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+
+    #
+    # CURL OPTIONS
+    #
+
+    local url="${1}"; shift          # Main URL
+    local -r userAgent="${1}"; shift # User Agent
+    local alt="${1}"; shift          # Alternate URL
+    local -r proxyOpt="${1}"; shift  # Proxy option
+
+    #
+    # REQUEST RESULT
+    #
+
+    local res=""
+    local size=0
+
+    # TO BE REMOVED
+    local -r urlRegex='(https|http)://[A-Za-z0-9_|.]*(/([^\.\"?:;,#\<\>=% ]*(.html)?)*)'
+
+    #
+    # DNS SETTINGS
+    #
+
+    local DNS=""
     local DNSQuery=""
 
     while true; do
         getLock
-        DNSQuery="$(generateDNSQuery "${Url}" "${DNS}")"
+
+        #
+        # RANDOM DNS PICK
+        # TODO
+        #
+
+        DNS="$(sed '$(( RANDOM % 3))!d' somefile.txt)"
+        DNSQuery="$(generateDNSQuery "${url}" "${DNS}")"
+
+        #
+        # CURL REQUEST
+        # CREATION AND EXECUTION
+        #
+
         local Cmd=( "curl"
                     "--compressed"                 # Ask to server to compress response
                     "--header" "Accept: text/html" # Filter out everything but html
                     "--max-time" "60"              # Max wait time adjusted to 60s
                     "--location"                   # Follow redirect
-                    "--user-agent" "${2}"          # Specify user agent
+                    "--user-agent" "${userAgent}"  # Specify user agent
                     "--write-out" "'%{http_code}'" # Show HTTP response code
-                    "$DNSQuery"                    # DNS Options
-                    "${4}"                         # Proxy options
-                    "${Url}" )
-        #echo "${Cmd[@]}"
-        local op=$("${Cmd[@]}" 2>&1)
-        if [[ -n $op ]]; then
-            Res="$op"
-        else
-            Res=""
-        fi
+                    "${DNSQuery}"                  # DNS Options
+                    "${proxyOpt}"                  # Proxy options
+                    "${url}" )
+        res=$("${Cmd[@]}" 2>&1)
+
+        #
+        # URL FOMATTED PRINT
+        #
 
         echo -ne "[*] ${Url:0:60}"
-        if [[ "${#Url}" -gt 60 ]]; then
+        if [[ "${#url}" -gt 60 ]]; then
             echo -ne "... "
             tput cuf 6
         else
-            tput cuf "$(( 70 - ${#Url} ))"
+            tput cuf "$(( 70 - ${#url} ))"
         fi
 
         echo " ${Res:(-5)}"
-        #echo "${Res}" -- DEBUG
+
+        #
+        # NEXT URL SECTION
+        #
+
         if [[ "${Res}" != "" ]] && [[ "${Res:(-5)}" == "'200'" ]]; then
-            Res="$(awk -F '"' '{print $2}' <<< "${Res}")"
-            Res="$(grep -Eo "${UrlRegex}" <<< "${Res}" | sort | uniq)"
-            Res="$(filter "${Res}")"
-            Size="$(echo $(wc -l <<< "${Res}") | cut -d " " -f1)"
+
+            #
+            # RESPONSE FILTER
+            #
+
+            Res="$(awk -F '"' '{print $2}' <<< "${Res}")"              # Evrything between ""
+            Res="$(grep -Eo "${UrlRegex}" <<< "${Res}" | sort | uniq)" # Valid URL REGEX
+            Res="$(filter "${Res}")"                                   # Badword Filter
+            Size="$(echo $(wc -l <<< "${Res}") | cut -d " " -f1)"      # Final URL Count
+
+            #
+            # URL PICK
+            #
+
             if [[ "${Size}" -gt 3 ]]; then
-                Alt="${Url}"
-                Num="$(( RANDOM % $(( Size - 1 )) + 1 ))"
-                Url="$(sed "${Num}q;d" <<< "${Res}")" # Random Link
+
+                #
+                # MORE THAN 3 URL
+                #
+
+                Alt="${Url}"                               # Current Url is now Backup-Url
+                Num="$(( RANDOM % $(( Size - 1 )) + 1 ))"  # Random number
+                Url="$(sed "${Num}q;d" <<< "${Res}")"      # Random Link at that index
                 freeLock
+
+                #
+                # WAIT CHECK
+                #
+
                 if [[ $WAIT == true ]]; then
                     Words="0.$(( RANDOM % 9999999 ))"
                     sleep "$(echo "$(( RANDOM % 160 + 40)) * $Words" | bc)"
                 fi
             else
-                Url="${Alt}"
-                Alt="${3}"
+
+                #
+                # LESS THAN 3 URL
+                #
+
+                Url="${Alt}" # Backup is now current URL
+                Alt="${3}"   # TODO fix broken reference
                 freeLock
             fi
         else
-            Url="${Alt}"
-            Alt="${3}"
+
+            #
+            # NOT A 200 RESPONSE CODE
+            #
+
+            Url="${Alt}" # Backup is now current URL
+            Alt="${3}"   # TODO fix broken reference
             freeLock
         fi
     done
