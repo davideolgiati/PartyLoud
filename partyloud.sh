@@ -53,34 +53,47 @@ main() {
 	    # In the "bad choise" scenario You'll see a lot of traffic direct to random
 	    # DNSes and some traffic direct to a fixed ip. It's pretty easy to see which
 	    # traffic is real and which is not.
-	    -d | --dns )gggggg
-		bold "[!] --dns flag was a bad idea, is now deprecated"
-		bold "    please refear to the official github repository"
+	    -d | --dns )
+		bold "[x] --dns flag was a bad idea, is now deprecated"
+		bold "    please check the official github repository"
 		exit 1
 		;;
 	    # --url-list is used to specify a user file contining the base urls
 	    --url-list )
+		# moving one step forward the first variable pointer
 		shift
+		# checking the falg has an arg and that the arg
+		# is not an empty string
 		if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+		    # the arg expected for --url-list
+		    # should be a path to a valid file
 		    if [[ -e "$1" ]]; then
+			# if the file exists on the system than we can
+			# salve his path in order to use the content later on
 			UrlList="$1"
 		    else
-			bold "[!] a file named \"$1\" does not exist"
-			DisplayHelp
+			# if the file doesn't exists on the system we must provide
+			# a message to the user so he can than troubleshoot the problem
+			bold "[x] while parsing the --url-list flag an error came up."
+			bold "    Seems that a file named \"$1\" does not exist"
+			bold "    on the system. Please double check the path to"
+			bold "    the file and try using the absolute path."
+			bold "    if the problem persists open an issue on"
+			bold "    the official github repository"
 			exit 1
 		    fi
 		else
-		    DisplayHelp
+		    # the user probably forgot to specify the file containg his
+		    # custom base urls list, let's remind him about it
+		    bold "[x] please check again the args you provided, looks"
+		    bold "    like you forgot to specify a file in the --url-list option"
+		    bold "    the flag must look like this : --url-list /path/to/the/file"
 		    exit 1
 		fi
 		;;
-	    -l)
-		bold "[!] please use --url-list instead of -l"
-		exit 1
-		;;
 	    # --blocklist is used to specify a user file containg a custom
 	    # filter rules set
-	    -b | --blocklist )
+	    --blocklist )
 		shift
 		if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
 		    if [[ -e "$1" ]]; then
@@ -95,6 +108,11 @@ main() {
 		    exit 1
 		fi
 		;;
+	    -b)
+		bold "[!] please use --blocklist instead of -b"
+		exit 1
+		;;
+	    # --http-proxy is used to specify an http proxy server
 	    -p | --http-proxy )
 		shift
 		if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
@@ -104,13 +122,25 @@ main() {
 		    exit 1
 		fi
 		;;
+	    # --https-proxy is used to specify an https proxy server
 	    -s | --https-proxy )
 		shift
-		if [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
+		if [[ "$ProxyOpt" == "" ]] && [[ "$1" != "" ]] && [[ ! "$1" =~ ^- ]]; then
 		    ProxyOpt="$(proxySetup "$1" "https")"
 		else
-		    DisplayHelp
-		    exit 1
+		    if [[ "$ProxyOpt" != "" ]]; then
+			bold "[!] looks like you trying use more than one proxy"
+			bold "    please remove --https-proxy $1 and retry"
+		    elif [[ "$1" == "" ]] || [[ "$1"  =~ ^- ]]; then
+			bold "[!] looks like you forgot the proxy IP"
+			bold "    please add a valid IP after --https-proxy"
+			bold "    or remove the flag if you don't need it"
+		    else
+			bold "[!] $1 is not a valid argument for --https-proxy flag"
+			bold "    please check the official github repository or"
+			bold "    use the --help flag for more information"
+		    fi
+		    exit
 		fi
 		;;
 	    -h | --help )
