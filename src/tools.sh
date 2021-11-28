@@ -15,7 +15,7 @@ SWCheck() {
 		  "curl"
 		  "grep"
 		  "sed"
-		  "awk"
+		  "gawk"
 		  "wc"
 		  "sort"
 		  "uniq"
