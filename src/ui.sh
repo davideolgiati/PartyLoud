@@ -34,7 +34,7 @@ Usage: ./partyloud.sh [options...]
 -p --http-proxy <http://ip:port>   set a HTTP proxy
 -s --https-proxy <https://ip:port> set a HTTPS proxy
 -n --no-wait                       disable wait between one request and an other
--h --help                          dispaly this help
+-h --help                          display this help
 
 EOF
 }

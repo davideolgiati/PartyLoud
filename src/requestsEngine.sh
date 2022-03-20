@@ -139,7 +139,7 @@ Engine() {
         echo " ${Res:(-5)}"
         #echo "${Res}" -- DEBUG
         if [[ "${Res}" != "" ]] && [[ "${Res:(-5)}" == "'200'" ]]; then
-            Res="$(awk -F '"' '{print $2}' <<< "${Res}")"
+            Res="$(gawk -F '"' '{print $2}' <<< "${Res}")"
             Res="$(grep -Eo "${UrlRegex}" <<< "${Res}" | sort | uniq)"
             Res="$(filter "${Res}")"
             Size="$(echo $(wc -l <<< "${Res}") | cut -d " " -f1)"
