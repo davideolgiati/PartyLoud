@@ -72,7 +72,7 @@ This project was inspired by [noisy.py](https://github.com/1tayH/noisy "noisy.py
 1. URLs and keywords are loaded (either from partyloud.conf and badwords or from user-defined files)
 2. If proxy flag has been used, proxy config will be tested
 3. For each URL in ULR-list a thread is started, each thread as an [user agent](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent) associated
-4. Each thread will start by sending an HTTP request to the given URL
+4. Each thread will start by sending an [HTTP](https://www.scaler.com/topics/hypertext-transfer-protocol/) request to the given URL
 5. The response if filtered using the keywords in order to prevent 404s and malformed URLs
 6. A new URL is choosen from the list generated after filering
 7. Current thread sleeps for a random time
