@@ -93,7 +93,7 @@ stop() {
 filter() {
     local Urls="${1}"
     if [[ "${Urls}" != "" ]]; then
-        for FILTER in "${BLOCKLIST}"; do
+        for FILTER in "${BLOCKLIST_LOCATION}"; do
             Urls="$(grep -iv "${FILTER}" <<< "${Urls}")"
         done
     fi
