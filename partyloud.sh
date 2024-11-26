@@ -44,6 +44,31 @@ processProxyUri(){
     curlProxyFlags="$(proxySetup "${uri}" "${protocol}")"
 }
 
+log() {
+    readonly level="${1}"
+    readonly message="${2}"
+    readonly currentTimestamp="$(date --utc +%FT%TZ)"
+
+    echo -n "[${currentTimestamp}] "
+
+    case "${level}" in
+	debug)
+	    echo -e "[DEBUG] ${message}"
+	    ;;
+	info)
+	    echo -e "[INFO]  ${message}"
+	    ;;
+	warn)
+	    echo -e "[WARN]  ${message}"
+	    ;;
+	error)
+	    echo -ne "\033[1;31m"
+	    echo -e "[ERROR] ${message}"
+	    echo -ne "\033[0m"
+	    ;;
+    esac
+}
+
 
 main() {
     local curlProxyFlags=""
@@ -77,79 +102,54 @@ main() {
 	shift
     done
 
-    echo "[+] Using $URL_LIST_LOCATION as URL List"
-    echo "[+] Using $BLOCKLIST_LOCATION as Blocklist"
+    log debug "Using file \"$URL_LIST_LOCATION\" as url list"
+    log debug "Using file \"$BLOCKLIST_LOCATION\" as blacklist"
 
     if [[ "$curlProxyFlags" != "" ]]; then
-	echo "[+] Proxy is in use"
+	log debug "Proxy configuration for curl: \"${curlProxyFlags}\""
     fi
-
-    echo -ne "\n"
 
     SWCheck
 	
-	echo -ne "\n"
-	echo -ne "[+] Testing Internet Connection ..."
-	if (echo >/dev/tcp/www.google.com/80) &>/dev/null; then
-	    clearLines 1
-	    echo -ne "[+] Internet Connection Available!\n\n"
+    log info "Testing Internet Connection"
+    if (echo >/dev/tcp/www.google.com/80) &>/dev/null; then
+	clearLines 1
+	log info "Internet Connection Available!"
 
-	    declare -a PIDS
+	declare -a PIDS
+	export PIDS
 
-	    export PIDS
+	trap stop SIGINT
+	trap stop SIGTERM
+	trap stop EXIT
 
-	    trap stop SIGINT
-	    trap stop SIGTERM
-	    trap stop EXIT
+	local CurrentUrl=""
+	local AltUrl="https://hackernoon.com"
 
-	    local CurrentUrl=""
-	    local AltUrl="https://hackernoon.com"
+	local ThreadCount="0"
 
-	    local ThreadCount="0"
+	getLock
 
-	    getLock
+	for CurrentUrl in $URL_LIST_LOCATION; do
+	   if [[ $ThreadCount -lt 10 ]]; then
+		progress "[+] Starting HTTP Engine ($CurrentUrl) ... "
+		Engine "${CurrentUrl}" "$(generateUserAgent)" "${AltUrl}" "${curlProxyFlags}" &
+		PIDS+=("$!")
+		sleep 0.4
+		AltUrl="${CurrentUrl}"
+		ThreadCount="$(( ThreadCount + 1))"
+	    fi
+	done
 
-	    for CurrentUrl in $URL_LIST_LOCATION; do
-		if [[ $ThreadCount -lt 10 ]]; then
-		    progress "[+] Starting HTTP Engine ($CurrentUrl) ... "
-		    Engine "${CurrentUrl}" "$(generateUserAgent)" "${AltUrl}" "${curlProxyFlags}" &
-		    PIDS+=("$!")
-		    sleep 0.4
-		    AltUrl="${CurrentUrl}"
-		    ThreadCount="$(( ThreadCount + 1))"
-		fi
-	    done
+	freeLock
 
-	    freeLock
+	clearLines 1
+	log info "HTTP Engines Started!\n"
 
-	    clearLines 1
-	    tput bold
-	    echo -ne "[+] HTTP Engines Started!\n"
-	    tput sgr0
-
-	    echo -ne "\n\n"
-
-	    tput bold
-	    center "[ PRESS ENTER TO STOP ]"
-	    tput sgr0
-
-	    echo -ne "\n\n\n"
-	    read -r _
-
-	    stop
-
-	    clearLines 1
-	    tput bold
-	    echo -ne "[+] HTTP Engines Stopped!\n\n"
-	    tput sgr0
-
-	else
-	    clearLines 1
-	    tput bold
-	    tput setaf 1
-	    echo "[!] Unable to Connect to Network!"
-	    tput sgr0
-	fi
+	stop
+    else
+	clearLines 1
+	log error "[!] Unable to Connect to Network!"
     fi
 }
 
