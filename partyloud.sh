@@ -116,37 +116,10 @@ main() {
 	clearLines 1
 	log info "Internet Connection Available!"
 
-	declare -a PIDS
-	export PIDS
-
-	trap stop SIGINT
-	trap stop SIGTERM
-	trap stop EXIT
-
 	local CurrentUrl=""
 	local AltUrl="https://hackernoon.com"
 
-	local ThreadCount="0"
-
-	getLock
-
-	for CurrentUrl in $URL_LIST_LOCATION; do
-	   if [[ $ThreadCount -lt 10 ]]; then
-		progress "[+] Starting HTTP Engine ($CurrentUrl) ... "
-		Engine "${CurrentUrl}" "$(generateUserAgent)" "${AltUrl}" "${curlProxyFlags}" &
-		PIDS+=("$!")
-		sleep 0.4
-		AltUrl="${CurrentUrl}"
-		ThreadCount="$(( ThreadCount + 1))"
-	    fi
-	done
-
-	freeLock
-
-	clearLines 1
-	log info "HTTP Engines Started!\n"
-
-	stop
+	Engine "${CurrentUrl}" "$(generateUserAgent)" "${AltUrl}" "${curlProxyFlags}"
     else
 	clearLines 1
 	log error "[!] Unable to Connect to Network!"
